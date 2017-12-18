@@ -1,5 +1,39 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <Package xmlns="http://soap.sforce.com/2006/04/metadata">
+    <types>
+        <members>Case.Standard</members>
+        <members>Lead.Standard</members>
+        <name>AssignmentRule</name>
+    </types>
+    <types>
+        <members>unfiled$public</members>
+        <members>unfiled$public/MarketingProductInquiryResponse</members>
+        <members>unfiled$public/SUPPORTSelfServiceNewCommentNotificationSAMPLE</members>
+        <members>unfiled$public/SUPPORTSelfServiceNewUserLoginInformationSAMPLE</members>
+        <members>unfiled$public/SUPPORTSelfServiceResetPasswordSAMPLE</members>
+        <members>unfiled$public/SalesNewCustomerEmail</members>
+        <members>unfiled$public/SupportCaseAssignmentNotification</members>
+        <members>unfiled$public/SupportCaseCreatedPhoneInquiries</members>
+        <members>unfiled$public/SupportCaseCreatedWebInquiries</members>
+        <members>unfiled$public/SupportCaseResponse</members>
+        <members>unfiled$public/SupportEscalatedCaseNotification</members>
+        <members>unfiled$public/SupportEscalatedCaseReassignment</members>
+        <members>unfiled$public/SupportSelfServiceNewLoginandPassword</members>
+        <members>unfiled$public/SupportSelfServiceResetPassword</members>
+        <name>EmailTemplate</name>
+    </types>
+    <types>
+        <members>Case.Standard</members>
+        <name>EscalationRule</name>
+    </types>
+    <types>
+        <members>ApexDevNet</members>
+        <name>RemoteSiteSetting</name>
+    </types>
+    <types>
+        <members>unfiled$public</members>
+        <name>Report</name>
+    </types>
     <types>
         <members>*</members>
         <name>ApexClass</name>
@@ -27,11 +61,6 @@
     <types>
         <members>*</members>
         <name>ApprovalProcess</name>
-    </types>
-    <types>
-        <members>Case.Standard</members>
-        <members>Lead.Standard</members>
-        <name>AssignmentRule</name>
     </types>
     <types>
         <members>*</members>
@@ -70,7 +99,6 @@
         <name>CustomMetadata</name>
     </types>
     <types>
-        <members>*</members>
         <members>Account</members>
         <members>AccountCleanInfo</members>
         <members>AccountContactRole</members>
@@ -120,6 +148,7 @@
         <members>Task</members>
         <members>User</members>
         <members>UserProvisioningRequest</members>
+        <members>*</members>
         <name>CustomObject</name>
     </types>
     <types>
@@ -145,27 +174,6 @@
     <types>
         <members>*</members>
         <name>DataCategoryGroup</name>
-    </types>
-    <types>
-        <members>unfiled$public</members>
-        <members>unfiled$public/MarketingProductInquiryResponse</members>
-        <members>unfiled$public/SUPPORTSelfServiceNewCommentNotificationSAMPLE</members>
-        <members>unfiled$public/SUPPORTSelfServiceNewUserLoginInformationSAMPLE</members>
-        <members>unfiled$public/SUPPORTSelfServiceResetPasswordSAMPLE</members>
-        <members>unfiled$public/SalesNewCustomerEmail</members>
-        <members>unfiled$public/SupportCaseAssignmentNotification</members>
-        <members>unfiled$public/SupportCaseCreatedPhoneInquiries</members>
-        <members>unfiled$public/SupportCaseCreatedWebInquiries</members>
-        <members>unfiled$public/SupportCaseResponse</members>
-        <members>unfiled$public/SupportEscalatedCaseNotification</members>
-        <members>unfiled$public/SupportEscalatedCaseReassignment</members>
-        <members>unfiled$public/SupportSelfServiceNewLoginandPassword</members>
-        <members>unfiled$public/SupportSelfServiceResetPassword</members>
-        <name>EmailTemplate</name>
-    </types>
-    <types>
-        <members>Case.Standard</members>
-        <name>EscalationRule</name>
     </types>
     <types>
         <members>*</members>
@@ -216,14 +224,6 @@
         <name>QuickAction</name>
     </types>
     <types>
-        <members>ApexDevNet</members>
-        <name>RemoteSiteSetting</name>
-    </types>
-    <types>
-        <members>unfiled$public</members>
-        <name>Report</name>
-    </types>
-    <types>
         <members>*</members>
         <name>ReportType</name>
     </types>
@@ -241,6 +241,10 @@
     </types>
     <types>
         <members>*</members>
+        <name>Settings</name>
+    </types>
+    <types>
+        <members>*</members>
         <name>SharingSet</name>
     </types>
     <types>
@@ -254,10 +258,6 @@
     <types>
         <members>*</members>
         <name>Workflow</name>
-    </types>
-    <types>
-        <members>*</members>
-        <name>Settings</name>
     </types>
     <version>38.0</version>
 </Package>
