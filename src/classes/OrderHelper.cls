@@ -1,4 +1,4 @@
-public with sharing class OrderHelper {
+public class OrderHelper {
 	GenericDml genericDml;
 	OrderItemSelector orderItemSelector;
 	ProductAggregateSelector productAggregateSelector;
@@ -17,6 +17,8 @@ public with sharing class OrderHelper {
 		this(new GenericDml(), new OrderItemSelector(), new ProductAggregateSelector());
 	}	
 
+	private static String ACTIVATED_ORDER_STATUS = Constants.ACTIVATED_ORDER_STATUS;
+
     /**
      * @name AfterUpdate
      * @description 
@@ -27,10 +29,11 @@ public with sharing class OrderHelper {
     public static void AfterUpdate(List<Order> newList, List<Order> oldList){
         Set<Id> orderIds = new Set<Id>();
         for ( Integer i=0; i<newList.size(); i++ ){
-            if ( newList[i].Status == 'Activation' && oldList[i].Status != 'Activate' ){
+            if (newList[i].Status == ACTIVATED_ORDER_STATUS && oldList[i].Status != ACTIVATED_ORDER_STATUS){
                 orderIds.add(newList[i].Id);
             }
         }
+        RollupOrderItems(orderIds);
     }
 
     /**
@@ -46,21 +49,23 @@ public with sharing class OrderHelper {
     public List<OrderItem> updateOrderItemQuantities(Set<Id> activatedOrderIds) {
         List<OrderItem> orderItemList = this.orderItemSelector.selectByOrderId(activatedOrderIds);
 
-        //ToDo: Declare a Map named "productMap" of Ids to Product2 records
-        Map<Id, Product2> productByIdMap = new Map<Id, Product2>();
+        Map<Id, Product2> productMap = new Map<Id, Product2>();
         for (OrderItem orderItem : orderItemList) {
-        	productByIdMap.put(orderItem.Pricebookentry.Product2Id, orderItem.Pricebookentry.Product2);
+        	productMap.put(orderItem.Pricebookentry.Product2Id, orderItem.Pricebookentry.Product2);
         }
 		
-		List<AggregateResult> aggregateResultList = this.productAggregateSelector
-			.aggregateQuantityOrderedByProduct2(productByIdMap.keySet());
-			 
-		for (AggregateResult aggregateResult : aggregateResultList) {
-			Product2 product = productByIdMap.get((Id) aggregateResult.get('Product2Id'));
+		for (AggregateResult aggregateResult : [
+				SELECT Pricebookentry.Product2Id, SUM(Quantity)
+	            FROM OrderItem
+	            WHERE Pricebookentry.Product2Id IN :productMap.keySet()
+	            	AND Order.ActivatedDate != null		
+	            GROUP BY Pricebookentry.Product2Id
+			]) {
+			Product2 product = productMap.get((Id) aggregateResult.get('Product2Id'));
 			product.Quantity_Ordered__c = (Decimal) aggregateResult.get('expr0');
 		}
 		
-        this.genericDml.doUpdate(productByIdMap.values());
+        this.genericDml.doUpdate(productMap.values());
         return orderItemList;
     }
 
