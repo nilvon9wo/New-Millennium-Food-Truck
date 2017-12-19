@@ -1,12 +1,12 @@
 public class Constants {
-	NMFT_PriceBookSelector priceBookSelector;
+	PriceBookSelector priceBookSelector;
 	
-	public Constants(NMFT_PriceBookSelector priceBookSelector) {
+	public Constants(PriceBookSelector priceBookSelector) {
 		this.priceBookSelector = priceBookSelector;
 	}
 	
 	public Constants() {
-		this(new NMFT_PriceBookSelector());
+		this(new PriceBookSelector());
 	}
 
 	public static final String ACTIVATED_ORDER_STATUS = 'Activated';

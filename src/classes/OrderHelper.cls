@@ -2,19 +2,22 @@ public class OrderHelper {
 	GenericDml genericDml;
 	OrderItemSelector orderItemSelector;
 	ProductAggregateSelector productAggregateSelector;
+	SetHelper setHelper;
 	
 	public OrderHelper(
 			GenericDml genericDml, 
 			OrderItemSelector orderItemSelector, 
-			ProductAggregateSelector productAggregateSelector
+			ProductAggregateSelector productAggregateSelector,
+			SetHelper setHelper
 		) {
 		this.genericDml = genericDml;
 		this.orderItemSelector = orderItemSelector;
 		this.productAggregateSelector = productAggregateSelector;
+		this.setHelper = setHelper;
 	}	
 
 	public OrderHelper() {
-		this(new GenericDml(), new OrderItemSelector(), new ProductAggregateSelector());
+		this(new GenericDml(), new OrderItemSelector(), new ProductAggregateSelector(), new SetHelper());
 	}	
 
 	private static String ACTIVATED_ORDER_STATUS = Constants.ACTIVATED_ORDER_STATUS;
@@ -26,15 +29,16 @@ public class OrderHelper {
      * @param List<Order> oldList
      * @return void
     **/
-    public static void AfterUpdate(List<Order> newList, List<Order> oldList){
-        Set<Id> orderIds = new Set<Id>();
-        for ( Integer i=0; i<newList.size(); i++ ){
-            if (newList[i].Status == ACTIVATED_ORDER_STATUS && oldList[i].Status != ACTIVATED_ORDER_STATUS){
-                orderIds.add(newList[i].Id);
-            }
-        }
-        RollupOrderItems(orderIds);
+    public static void AfterUpdate(List<Order> newOrderList, List<Order> oldOrderList){
+    	(new OrderHelper()).onAfterUpdate(newOrderList, oldOrderList);
     }
+    
+    private List<OrderItem> onAfterUpdate(List<Order> newOrderList, List<Order> oldOrderList) {
+    	SObjectField targetField = Order.Status;
+    	Object targetValue = ACTIVATED_ORDER_STATUS;
+    	Set<Id> changeIdSet = this.setHelper.buildHasChangedToTargetValueIdSet(newOrderList, oldOrderList, targetField, targetValue);
+        return this.updateOrderItemQuantities(changeIdSet);
+    } 
 
     /**
      * @name RollUpOrderItems 
