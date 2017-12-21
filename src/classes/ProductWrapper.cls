@@ -8,11 +8,6 @@ public class ProductWrapper {
 	}
 	
 	public Boolean hasAllDataRequiredToSave() {
-		System.debug('####### Constants.SELECT_ONE: ' + Constants.SELECT_ONE);
-		System.debug('####### this.productRecord.Name: ' + this.productRecord.Name);
-		System.debug('####### this.productRecord.Family: ' + this.productRecord.Family);
-		System.debug('####### this.productRecord.Initial_Inventory__c: ' + this.productRecord.Initial_Inventory__c);
-		System.debug('####### this.priceBookEntryRecord.UnitPrice: ' + this.priceBookEntryRecord.UnitPrice);
 		return !String.isBlank(this.productRecord.Name)
 			&& !String.isBlank(this.productRecord.Family)
 			&& (this.productRecord.Family != Constants.SELECT_ONE)
