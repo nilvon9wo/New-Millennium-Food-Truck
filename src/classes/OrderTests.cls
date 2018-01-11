@@ -1,4 +1,4 @@
-@isTest (seeAllData=true)
+@isTest
 private class OrderTests {
 
 

@@ -1,4 +1,4 @@
-@isTest (seeAllData=true)
+@isTest
 private class Product2Tests {
 
     /**
@@ -7,10 +7,9 @@ private class Product2Tests {
     **/
     static TestMethod void Product2Extension_UnitTest(){
         Test.startTest();
-            Product2Extension ext = new Product2Extension();
+            Product2Extension ext = new Product2Extension(null);
             ext.addRows();
             ext.save();
         Test.stopTest();
     }
-
 }
