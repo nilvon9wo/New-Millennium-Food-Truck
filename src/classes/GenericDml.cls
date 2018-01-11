@@ -19,4 +19,4 @@ public class GenericDml {
     	update sObjectList;
     	return sObjectList;
     }
-} 
+}

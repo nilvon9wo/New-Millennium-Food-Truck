@@ -1,5 +1,5 @@
 <apex:component >
-	<apex:attribute name="inventory" type="List" description="Inventory to display." /> 
+	<apex:attribute name="Inventory" type="List" description="Inventory to display." /> 
 
 	<apex:chart height="400" width="700" data="{!Inventory}">
 		<apex:axis type="Category" position="left" fields="name" title="Produt Family" />

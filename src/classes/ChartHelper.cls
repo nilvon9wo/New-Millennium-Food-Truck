@@ -1,11 +1,27 @@
-public with sharing class ChartHelper {
+public without sharing class ChartHelper {
+	ProductAggregateSelector productAggregateSelector;
+	
+	public ChartHelper(ProductAggregateSelector productAggregateSelector) {
+		this.productAggregateSelector = productAggregateSelector;
+	}
 
-    public static List<ChartData> GetInventory(){
-        List<ChartData> cht = new List<chartData>();
-        //ToDo: Perform a calculation that aggregates active Products that have a positive Quantity_Remaining__c
-        //  And return a list of chartData
-        //  Where the name is the Product Family and the Qty is the sum of the Quantity_Remaining__c
-        return cht;
+	public ChartHelper() {
+		this(new ProductAggregateSelector());
+	}
+
+	@AuraEnabled
+    public static List<ChartData> getInventory(){
+    	return (new ChartHelper()).selectRemainingProductList();
+    }
+    
+    public List<ChartData> selectRemainingProductList() {
+    	List<ChartData> chartDataList = new List<ChartData>();
+    	for (AggregateResult aggregateResult: this.productAggregateSelector.aggregateRemainingProduct()) {
+    		String family = (String) aggregateResult.get('family');
+    		Integer total = Integer.valueOf(aggregateResult.get('total'));
+    		chartDataList.add(new ChartData(family, total));
+    	}
+    	return ChartDataList;
     }
 
     public class ChartData {
