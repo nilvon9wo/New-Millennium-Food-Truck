@@ -1,5 +1,5 @@
-public class SetHelper {
-    public Set<Id> buildHasChangedToTargetValueIdSet(
+public virtual class SetHelper {
+    public virtual Set<Id> buildHasChangedToTargetValueIdSet(
     		List<SObject> newSObjectList, 
     		List<SObject> oldSObjectList, 
     		SObjectField sObjectField,

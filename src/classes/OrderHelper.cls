@@ -1,23 +1,23 @@
 public class OrderHelper {
-	GenericDml genericDml;
+	F45_DML_GenericDml genericDml;
 	OrderItemSelector orderItemSelector;
-	ProductAggregateSelector productAggregateSelector;
+	OrderItemAggregateSelector orderItemAggregateSelector;
 	SetHelper setHelper;
 	
 	public OrderHelper(
-			GenericDml genericDml, 
+			F45_DML_GenericDml genericDml, 
 			OrderItemSelector orderItemSelector, 
-			ProductAggregateSelector productAggregateSelector,
+			OrderItemAggregateSelector orderItemAggregateSelector,
 			SetHelper setHelper
 		) {
 		this.genericDml = genericDml;
 		this.orderItemSelector = orderItemSelector;
-		this.productAggregateSelector = productAggregateSelector;
+		this.orderItemAggregateSelector = orderItemAggregateSelector;
 		this.setHelper = setHelper;
 	}	
 
 	public OrderHelper() {
-		this(new GenericDml(), new OrderItemSelector(), new ProductAggregateSelector(), new SetHelper());
+		this(new F45_DML_GenericDml(), new OrderItemSelector(), new OrderItemAggregateSelector(), new SetHelper());
 	}	
 
 	private static String ACTIVATED_ORDER_STATUS = Constants.ACTIVATED_ORDER_STATUS;
@@ -50,21 +50,16 @@ public class OrderHelper {
     	(new OrderHelper()).updateOrderItemQuantities(activatedOrderIds);
     }
      
-    public List<OrderItem> updateOrderItemQuantities(Set<Id> activatedOrderIds) {
-        List<OrderItem> orderItemList = this.orderItemSelector.selectByOrderId(activatedOrderIds);
+    public List<OrderItem> updateOrderItemQuantities(Set<Id> activatedOrderIdSet) {
+        List<OrderItem> orderItemList = this.orderItemSelector.selectByOrderId(activatedOrderIdSet);
 
         Map<Id, Product2> productMap = new Map<Id, Product2>();
         for (OrderItem orderItem : orderItemList) {
         	productMap.put(orderItem.Pricebookentry.Product2Id, orderItem.Pricebookentry.Product2);
         }
 		
-		for (AggregateResult aggregateResult : [
-				SELECT Pricebookentry.Product2Id, SUM(Quantity)
-	            FROM OrderItem
-	            WHERE Pricebookentry.Product2Id IN :productMap.keySet()
-	            	AND Order.ActivatedDate != null		
-	            GROUP BY Pricebookentry.Product2Id
-			]) {
+		List<AggregateResult> orderItemAggregateResultList = this.orderItemAggregateSelector.aggregateQuantityOrderedByProduct2(productMap.keySet());
+		for (AggregateResult aggregateResult : orderItemAggregateResultList) {
 			Product2 product = productMap.get((Id) aggregateResult.get('Product2Id'));
 			product.Quantity_Ordered__c = (Decimal) aggregateResult.get('expr0');
 		}
