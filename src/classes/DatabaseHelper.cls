@@ -1,9 +1,9 @@
-public class DatabaseHelper {
-    public SavePoint setSavePoint() {
+public virtual class DatabaseHelper {
+    public virtual SavePoint setSavePoint() {
     	return Database.setSavePoint();
     }
     
-    public void rollback(SavePoint savePoint) {
+    public virtual void rollback(SavePoint savePoint) {
     	Database.rollback(savePoint); 
     }
 }

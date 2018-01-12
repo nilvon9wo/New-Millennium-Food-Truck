@@ -1,16 +1,19 @@
 public class Product2Extension { 
 	ApexPages.StandardController controller;
+	ChartHelper chartHelper;
     DatabaseHelper databaseHelper;
-    GenericDml genericDml;
+    F45_DML_GenericDml genericDml;
 	VisualForceHelper visualForceHelper;
    
     public Product2Extension(
-    		ApexPages.StandardController controller, 
+    		ApexPages.StandardController controller,
+    		ChartHelper chartHelper, 
     		DatabaseHelper databaseHelper, 
-    		GenericDml genericDml,
+    		F45_DML_GenericDml genericDml, 
     		VisualForceHelper visualForceHelper
     	) { 
     	this.controller = controller;
+    	this.chartHelper = chartHelper;
         this.databaseHelper = databaseHelper;
         this.genericDml = genericDml;
         this.visualForceHelper = visualForceHelper;
@@ -20,7 +23,7 @@ public class Product2Extension {
     }
 
     public Product2Extension(ApexPages.StandardController controller){
-   		this(controller, new DatabaseHelper(), new GenericDml(), new VisualForceHelper());
+   		this(controller, new ChartHelper(), new DatabaseHelper(), new F45_DML_GenericDml(), new VisualForceHelper());
     }
 
     public List<ProductWrapper> productsToInsert {get;set;}
@@ -33,8 +36,8 @@ public class Product2Extension {
         }
     }
  
-    public List<ChartHelper.ChartData> GetInventory(){
-        return ChartHelper.GetInventory();
+    public List<ChartHelper.ChartData> getInventory(){
+        return this.chartHelper.selectRemainingProductList();
     }
     
     public List<SelectOption> getFamilyOptions() {
@@ -46,43 +49,36 @@ public class Product2Extension {
     	return optionList;
     }
 
-    public PageReference Save(){
-        Savepoint sp = Database.setSavepoint();
-        try {
-            List<Product2> products = new List<Product2>();
-            List<PricebookEntry> entries = new List<PricebookEntry>();
-            
-            for (ProductWrapper wrp : productsToInsert){
-                if(null!=wrp.productRecord && null!=wrp.pricebookEntryRecord){
-                    
-                    if(null!=wrp.productRecord.Name && null!=wrp.productRecord.Family && constants.SELECT_ONE!=wrp.productRecord.Family
-                       && null!=wrp.productRecord.Initial_Inventory__c && null!=wrp.pricebookEntryRecord.UnitPrice){
-                        products.add(wrp.productRecord);
-                        PricebookEntry entry=wrp.pricebookEntryRecord;
-                        entry.IsActive=true;
-                        entry.Pricebook2Id=constants.STANDARD_PRICEBOOK_ID;
-                        entries.add(entry);   
-                    }
-                }
-            }
-			
-            insert products;
-            
-            for (integer itr=0; itr<entries.size();itr++){
-                entries[itr].Product2Id=products[itr].id;
-            }
-            insert entries;
-            //If successful clear the list and display an informational message
-            apexPages.addMessage(new ApexPages.message(ApexPages.Severity.INFO,productsToInsert.size()+' Inserted'));
-            productsToInsert.clear();   //Do not remove
-            addRows();  //Do not remove
-        } catch (Exception e){
-			Database.rollback(sp);
-            apexPages.addMessage(new ApexPages.message(ApexPages.Severity.ERROR,constants.ERROR_MESSAGE));
-        }
+    public PageReference save() {
+    	SavePoint savePoint = this.databaseHelper.setSavePoint();
+    	Map<PriceBookEntry, Product2> productByPriceBookEntryMap = this.buildProductByPriceBookEntryMap();
+    	
+    	String errorMessage = this.saveProductList(productByPriceBookEntryMap.values());
+    	if (String.isBlank(errorMessage)) {
+    		errorMessage = this.savePriceBookEntryList(productByPriceBookEntryMap);
+    	}
+
+    	if (!String.isBlank(errorMessage)) {
+    		this.databaseHelper.rollback(savePoint);
+    		visualForceHelper.addErrorMessage(Constants.ERROR_MESSAGE + errorMessage);
+    	} else {
+    		resetForm();
+    	}
+    	
         return null;
     }
-
+    
+    @testVisible
+    private Map<PriceBookEntry, Product2> buildProductByPriceBookEntryMap() {
+    	Map<PriceBookEntry, Product2> productByPriceBookEntryMap = new Map<PriceBookEntry, Product2>();
+    	for (ProductWrapper productWrapper : this.productsToInsert) {
+    		if (productWrapper.hasAllDataRequiredToSave()) {
+    			productByPriceBookEntryMap.put(productWrapper.pricebookEntryRecord, productWrapper.productRecord);
+    		}
+    	}
+		return productByPriceBookEntryMap;    	
+    }
+    
     @testVisible
     private String saveProductList(List<Product2> productList) {
     	String errorMessage = this.genericDml.doInsertOrReturnErrorMessage(productList); 

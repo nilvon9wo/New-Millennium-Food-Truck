@@ -1,9 +1,9 @@
-public class VisualForceHelper {
-    public ApexPages.message addInfoMessage(String message){
+public virtual class VisualForceHelper {
+    public virtual ApexPages.message addInfoMessage(String message){
     	return this.addMessage(ApexPages.Severity.INFO, message);
     }
 
-    public ApexPages.message addErrorMessage(String message){
+    public virtual ApexPages.message addErrorMessage(String message){
     	return this.addMessage(ApexPages.Severity.ERROR, message);
     }
 

@@ -1,12 +1,12 @@
-public without sharing class ChartHelper {
-	ProductAggregateSelector productAggregateSelector;
+public without sharing virtual class ChartHelper {
+	ProductSelector productAggregateSelector;
 	
-	public ChartHelper(ProductAggregateSelector productAggregateSelector) {
+	public ChartHelper(ProductSelector productAggregateSelector) {
 		this.productAggregateSelector = productAggregateSelector;
 	}
 
 	public ChartHelper() {
-		this(new ProductAggregateSelector());
+		this(new ProductSelector());
 	}
 
 	@AuraEnabled
@@ -14,7 +14,7 @@ public without sharing class ChartHelper {
     	return (new ChartHelper()).selectRemainingProductList();
     }
     
-    public List<ChartData> selectRemainingProductList() {
+    public virtual List<ChartData> selectRemainingProductList() {
     	List<ChartData> chartDataList = new List<ChartData>();
     	for (AggregateResult aggregateResult: this.productAggregateSelector.aggregateRemainingProduct()) {
     		String family = (String) aggregateResult.get('family');
@@ -33,5 +33,4 @@ public without sharing class ChartHelper {
             this.val = val;
         }
     }
-
 }
