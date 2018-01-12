@@ -83,38 +83,7 @@ public class Product2Extension {
         return null;
     }
 
-
-/*
-    public PageReference save_IMPROVED(){
-    	SavePoint savePoint = this.databaseHelper.setSavePoint();
-    	Map<PriceBookEntry, Product2> productByPriceBookEntryMap = this.buildProductByPriceBookEntryMap();
-    	
-    	String errorMessage = this.saveProductList(productByPriceBookEntryMap.values());
-    	if (String.isBlank(errorMessage)) {
-    		errorMessage = this.savePriceBookEntryList(productByPriceBookEntryMap);
-    	}
-
-    	if (!String.isBlank(errorMessage)) {
-    		this.databaseHelper.rollback(savePoint);
-    		visualForceHelper.addErrorMessage(Constants.ERROR_MESSAGE + errorMessage);
-    	} else {
-    		resetForm();
-    	}
-    	
-        return null;
-    }
-    
-    private Map<PriceBookEntry, Product2> buildProductByPriceBookEntryMap() {
-    	Map<PriceBookEntry, Product2> productByPriceBookEntryMap = new Map<PriceBookEntry, Product2>();
-    	for (ProductWrapper productWrapper : this.productsToInsert) {
-    		if (productWrapper.hasAllDataRequiredToSave()) {
-    			productByPriceBookEntryMap.put(productWrapper.pricebookEntryRecord, productWrapper.productRecord);
-    		}
-    	}
-		return productByPriceBookEntryMap;    	
-    }
-*/
-    
+    @testVisible
     private String saveProductList(List<Product2> productList) {
     	String errorMessage = this.genericDml.doInsertOrReturnErrorMessage(productList); 
     	if (String.isBlank(errorMessage)) {
@@ -123,6 +92,7 @@ public class Product2Extension {
     	return errorMessage;
     }
     
+    @testVisible
     private String savePriceBookEntryList(Map<PriceBookEntry, Product2> productByPriceBookEntryMap) {
 		List<PriceBookEntry> pricebookEntryList = new List<PriceBookEntry>(); 
     	for (PricebookEntry pricebookEntry: productByPriceBookEntryMap.keySet()) {
@@ -137,18 +107,9 @@ public class Product2Extension {
     	return this.genericDml.doInsertOrReturnErrorMessage(pricebookEntryList);
     }
     
+    @testVisible
     private void resetForm() {
     		this.productsToInsert.clear();
 	    	this.addRows();
     }
-    
-	public class ProductWrapper {
-		public Product2 productRecord {get; set;}
-		public PriceBookEntry priceBookEntryRecord {get; set;}
-		
-		public ProductWrapper() {
-			this.productRecord = new Product2();
-			this.priceBookEntryRecord = new PriceBookEntry();
-		}
-	}    
 }
