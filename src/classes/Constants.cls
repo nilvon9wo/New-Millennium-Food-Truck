@@ -19,5 +19,10 @@ public class Constants {
 	public static final Integer DEFAULT_ROWS = 5;
 
 	public static final List<Schema.PicklistEntry> PRODUCT_FAMILY = Product2.Family.getDescribe().getPicklistValues();
-	public static final Id STANDARD_PRICEBOOK_ID = (new Constants()).priceBookSelector.selectStandardPriceBook().Id;
+
+	// Use of Test.isRunningTest is a shitty solution.
+	// This constant does not belong here; its presence complicates dependency injection and therefore mocking.	
+	public static final Id STANDARD_PRICEBOOK_ID = (!Test.isRunningTest()) 
+		? (new Constants()).priceBookSelector.selectStandardPriceBook().Id
+		: PricebookTestDataFactory.STANDARD_PRICEBOOK_ID;
 }
