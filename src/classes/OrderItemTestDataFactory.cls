@@ -20,6 +20,7 @@ public class OrderItemTestDataFactory {
         for (OrderItem templateOrderItem : templateOrderItemList) {
             bundle.orderItemList.add(new OrderItem(
             	OrderId = (Id) TEST_DefaultHelper.valueOrDefault(templateOrderItem.OrderId, null),
+            	PriceBookEntry = (PriceBookEntry) TEST_DefaultHelper.valueOrDefault(templateOrderItem.PriceBookEntry, null),
             	PriceBookEntryId = (Id) TEST_DefaultHelper.valueOrDefault(templateOrderItem.PriceBookEntryId, null),
             	Quantity = (Decimal) TEST_DefaultHelper.valueOrDefault(templateOrderItem.Quantity, DEFAULT_QUANTITY),
             	UnitPrice = (Decimal) TEST_DefaultHelper.valueOrDefault(templateOrderItem.UnitPrice, DEFAULT_UNIT_PRICE)
@@ -69,6 +70,9 @@ public class OrderItemTestDataFactory {
 			if (orderItem.OrderId == null && bundle.orderList != null && bundle.orderList[i] != null) {
 				orderItem.OrderId = bundle.orderList[i].Id;
 			}
+			if (orderItem.PriceBookEntry == null && bundle.pricebookEntryList != null && bundle.pricebookEntryList[i] != null) {
+				orderItem.PriceBookEntry = bundle.pricebookEntryList[i];
+			}
 			if (orderItem.PriceBookEntryId == null && bundle.pricebookEntryList != null && bundle.pricebookEntryList[i] != null) {
 				orderItem.PriceBookEntryId = bundle.pricebookEntryList[i].Id;
 			}
@@ -99,6 +103,7 @@ public class OrderItemTestDataFactory {
     	for (Integer i = 0; i < quantity; i++) {
     		templateOrderItemList.add(new OrderItem(
     			OrderId = orderList[Math.mod(i, possibleOrderValues)].id,
+    			PriceBookEntry = pricebookEntryList[Math.mod(i, possiblePricebookEntryValues)],
     			PriceBookEntryId = pricebookEntryList[Math.mod(i, possiblePricebookEntryValues)].id
     		));
     	}

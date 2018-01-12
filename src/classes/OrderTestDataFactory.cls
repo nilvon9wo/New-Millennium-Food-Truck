@@ -24,7 +24,7 @@ public class OrderTestDataFactory {
             	AccountId = (Id) TEST_DefaultHelper.valueOrDefault(templateOrder.AccountId, null),
             	EffectiveDate = (Date) TEST_DefaultHelper.valueOrDefault(templateOrder.EffectiveDate, DEFAULT_EFFECTIVE_DATE),
             	Pricebook2Id = (Id) TEST_DefaultHelper.valueOrDefault(templateOrder.Pricebook2Id, DEFAULT_PRICEBOOK_ID),
-            	Status = (Id) TEST_DefaultHelper.valueOrDefault(templateOrder.Status, DEFAULT_STATUS)
+            	Status = (String) TEST_DefaultHelper.valueOrDefault(templateOrder.Status, DEFAULT_STATUS)
             ));
             i++;
         }
