@@ -6,7 +6,7 @@ public class OrderTestDataFactory {
 	public static final String DEFAULT_NAME_PREFIX = 'Order ';
 	public static final Date DEFAULT_EFFECTIVE_DATE = Date.today();
 	public static final Id DEFAULT_PRICEBOOK_ID = PricebookTestDataFactory.STANDARD_PRICEBOOK_ID; 
-	public static final String DEFAULT_STATUS = 'Draft';
+	public static final String DEFAULT_STATUS = 'Draft';  // SFDC does not allow 'Activated' orders to be inserted.
 
     public static Bundle createBundle(
     		List<Order> templateOrderList,  

@@ -26,7 +26,7 @@ public class OrderHelper {
      * @param List<Order> oldList
      * @return void
     **/
-    public static void AfterUpdate(List<Order> newOrderList, List<Order> oldOrderList){
+    public static void afterUpdate(List<Order> newOrderList, List<Order> oldOrderList){
     	(new OrderHelper()).onAfterUpdate(newOrderList, oldOrderList);
     }
     
@@ -44,7 +44,7 @@ public class OrderHelper {
      * @param Set<Id> activatedOrderIds
      * @return void
     **/
-    public static void RollUpOrderItems(Set<Id> activatedOrderIds){
+    public static void rollUpOrderItems(Set<Id> activatedOrderIds){
     	(new OrderHelper()).updateOrderItemQuantities(activatedOrderIds);
     }
     

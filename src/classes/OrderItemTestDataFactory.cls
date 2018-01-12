@@ -140,7 +140,7 @@ public class OrderItemTestDataFactory {
 		}
 		
 		public List<OrderItem> orderItemList;
-		public List<Pricebookentry> pricebookEntryList;
 		public List<Order> orderList;
+		public List<Pricebookentry> pricebookEntryList;
     }
 }
