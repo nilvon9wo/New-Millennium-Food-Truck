@@ -131,8 +131,12 @@ public class OrderItemTestDataFactory {
 			TEST_InsertModeEnum insertMode, 
 			TEST_InsertRelationshipsEnum insertOptionalRelationships
 		) {
-			this.orderList = OrderTestDataFactory.createList(quantity, insertMode);
-			this.pricebookEntryList = PricebookEntryTestDataFactory.createList(quantity, insertMode);
+			TEST_InsertModeEnum relationInsertMode = (insertMode != TEST_InsertModeEnum.MOCK_INSERT && insertMode != TEST_InsertModeEnum.NEVER_INSERT)
+				? TEST_InsertModeEnum.INSERT_NOW
+				: insertMode;
+			
+			this.orderList = OrderTestDataFactory.createList(quantity, relationInsertMode);
+			this.pricebookEntryList = PricebookEntryTestDataFactory.createList(quantity, relationInsertMode);
 			
 			if (insertOptionalRelationships == TEST_InsertRelationshipsEnum.INCLUDE) {
 				// TODO	

@@ -23,7 +23,7 @@ public class OrderHelperIntTest {
     	Test.stopTest();
     	
     	// Assert
-    	assertProductQuanityUpdate();
+    	assertProductQuantity();
 	} 
     
     @isTest public static void testRollUpOrderItemsShouldUpdateOrderQuantitiesForSpecifiedOrders() {
@@ -38,7 +38,7 @@ public class OrderHelperIntTest {
     	Test.stopTest();
     	
     	// Assert
-    	assertProductQuanityUpdate();
+    	assertProductQuantity();
 	} 
 	
 	private static Id activateOrder(Order testOrder) {
@@ -47,7 +47,7 @@ public class OrderHelperIntTest {
 		return testOrder.Id;
 	}
 	
-	private static void assertProductQuanityUpdate() {
+	private static void assertProductQuantity() {
     	List<Product2> resultProductList = [
     		SELECT Quantity_Ordered__c
     		FROM Product2

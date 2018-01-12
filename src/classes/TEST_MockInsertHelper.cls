@@ -13,5 +13,5 @@ public class TEST_MockInsertHelper {
             sObj.id = (Id) (prefix + '3E000000nPxz'.left(LENGTH_OF_SFDC_ID - 3 - uniquifier.length()) + uniquifier); 
         }
         return sObjectList;
-    }    
+    }
 }

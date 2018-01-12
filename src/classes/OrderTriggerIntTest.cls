@@ -1,5 +1,5 @@
 @isTest
-public class OrderTests {
+public class OrderTriggerIntTest {
 	private static final User TEST_USER = TEST_RunAsUserFactory.create(); 
 
     private static final Integer ORDER_ITEM_QUANTITY = 1;
