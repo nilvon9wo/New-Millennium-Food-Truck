@@ -112,7 +112,7 @@ public class OrderItemTestDataFactory {
     }
 
     public static List<OrderItem> createList(Integer quantity, List<Pricebookentry> pricebookEntryList, List<Order> orderList){
-    	return createList(quantity, pricebookEntryList, orderList);
+    	return createList(quantity, pricebookEntryList, orderList, TEST_InsertModeEnum.NEVER_INSERT);
     }
     
     

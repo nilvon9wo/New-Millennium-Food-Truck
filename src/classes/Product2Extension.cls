@@ -1,4 +1,4 @@
-public class Product2Extension { 
+public class Product2Extension {  
 	ApexPages.StandardController controller;
 	ChartHelper chartHelper;
     DatabaseHelper databaseHelper;
@@ -45,9 +45,14 @@ public class Product2Extension {
 
     public PageReference save() {
     	SavePoint savePoint = this.databaseHelper.setSavePoint();
-    	Map<PriceBookEntry, Product2> productByPriceBookEntryMap = this.buildProductByPriceBookEntryMap();
-    	
-    	String errorMessage = this.saveProductList(productByPriceBookEntryMap.values());
+    	Map<PriceBookEntry, Product2> productByPriceBookEntryMap;
+    	String errorMessage;
+    	try {
+    		productByPriceBookEntryMap = this.buildProductByPriceBookEntryMap();
+    	}
+    	catch (Product2ExtensionException ex) {
+    		errorMessage = ex.getMessage();
+    	}
     	if (String.isBlank(errorMessage)) {
     		errorMessage = this.savePriceBookEntryList(productByPriceBookEntryMap);
     	}
@@ -64,12 +69,31 @@ public class Product2Extension {
     
     @testVisible
     private Map<PriceBookEntry, Product2> buildProductByPriceBookEntryMap() {
-    	Map<PriceBookEntry, Product2> productByPriceBookEntryMap = new Map<PriceBookEntry, Product2>();
+    	List<PriceBookEntry> priceBookEntryList = new List<PriceBookEntry>();
+    	List<Product2> productList = new List<Product2>();
+    	
     	for (ProductWrapper productWrapper : this.productsToInsert) {
     		if (productWrapper.hasAllDataRequiredToSave()) {
-    			productByPriceBookEntryMap.put(productWrapper.pricebookEntryRecord, productWrapper.productRecord);
+    			priceBookEntryList.add(productWrapper.pricebookEntryRecord);
+    			productList.add(productWrapper.productRecord);
     		}
     	}
+
+    	Map<PriceBookEntry, Product2> productByPriceBookEntryMap = new Map<PriceBookEntry, Product2>();
+		if (!productList.isEmpty()) {
+			
+			String errorMessage = this.saveProductList(productList);
+			if (!String.isBlank(errorMessage)) {
+				throw new Product2ExtensionException(errorMessage);
+			}
+			
+			for (Integer i = 0; i < productList.size(); i++) {
+				Product2 product = productList[i];
+				PricebookEntry pricebookEntry = priceBookEntryList[i];
+				productByPriceBookEntryMap.put(pricebookEntry, product);
+			}
+		}    	
+    	
 		return productByPriceBookEntryMap;    	
     }
     

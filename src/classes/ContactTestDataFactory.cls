@@ -95,7 +95,7 @@ public class ContactTestDataFactory {
     }
 
     public static List<Contact> createList(Integer quantity, List<Account> accountList){
-    	return createList(quantity, accountList);
+    	return createList(quantity, accountList, TEST_InsertModeEnum.NEVER_INSERT);
     }
     
     public static Contact create(TEST_InsertModeEnum insertMode) {

@@ -103,7 +103,7 @@ public class OrderTestDataFactory {
     }
 
     public static List<Order> createList(Integer quantity, List<Account> accountList){
-    	return createList(quantity, accountList);
+    	return createList(quantity, accountList, TEST_InsertModeEnum.NEVER_INSERT);
     }
     
     public static Order create(TEST_InsertModeEnum insertMode) {

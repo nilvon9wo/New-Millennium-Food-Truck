@@ -12,13 +12,14 @@ public class Product2ExtensionTest {
 		MOCK_CHART_HELPER,
 		MOCK_DATABASE_HELPER,
 		MOCK_GENERIC_DML, 
-		MOCK_VISUAL_FORCE_HELPER
+		MOCK_VISUAL_FORCE_HELPER 
 	);
 
-	private static final Product2 TEST_PRODUCT = ProductTestDataFactory.create(TEST_InsertModeEnum.MOCK_INSERT);
+	private static final TEST_InsertModeEnum MOCK_INSERT = TEST_InsertModeEnum.MOCK_INSERT;
+	private static final Product2 TEST_PRODUCT = ProductTestDataFactory.create(MOCK_INSERT);
 	private static final List<Product2> TEST_PRODUCT_LIST = new List<Product2>{TEST_PRODUCT};
 
-	private static final PriceBookEntry TEST_PRICEBOOK_ENTRY = PricebookEntryTestDataFactory.create(TEST_InsertModeEnum.MOCK_INSERT);
+	private static final PriceBookEntry TEST_PRICEBOOK_ENTRY = PricebookEntryTestDataFactory.create(MOCK_INSERT);
 
 	private static final String DUMMY_ERROR_MESSAGE = 'Save Failed';
 

@@ -81,7 +81,11 @@ public class TestDataFactory {
     	insert constructOrderItems(cnt, pbes, ords);
     }
     
-    public static void verifyQuantityOrdered(Product2 originalProduct, Product2 updatedProduct, Integer quantityOrdered) {
-    	System.assertEquals(originalProduct.Quantity_Ordered__c + quantityOrdered, updatedProduct.Quantity_Ordered__c);	
+    public static void VerifyQuantityOrdered(Product2 originalProduct, Product2 updatedProduct, Integer qtyOrdered) {
+    	System.assertEquals(
+            originalProduct.Quantity_Ordered__c + qtyOrdered,
+            updatedProduct.Quantity_Ordered__c,
+            'error on Quantity_Ordered__c update'
+        );
     }
 }
