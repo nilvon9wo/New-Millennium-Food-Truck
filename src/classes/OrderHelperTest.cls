@@ -4,10 +4,11 @@ public class OrderHelperTest {
     
     private static final F45_DML_GenericDmlMock MOCK_GENERIC_DML = new F45_DML_GenericDmlMock();
     private static final OrderItemSelectorMock MOCK_ORDER_ITEM_SELECTOR = new OrderItemSelectorMock();
+    private static final ProductSelectorMock MOCK_PRODUCT_SELECTOR = new ProductSelectorMock();
     private static final SetHelperMock MOCK_SET_HELPER = new SetHelperMock();
 	private static final TEST_InsertModeEnum MOCK_INSERT = TEST_InsertModeEnum.MOCK_INSERT;
 
-    private static final OrderHelper HELPER_UNDER_TEST = new OrderHelper(MOCK_GENERIC_DML, MOCK_ORDER_ITEM_SELECTOR, MOCK_SET_HELPER);
+    private static final OrderHelper HELPER_UNDER_TEST = new OrderHelper(MOCK_GENERIC_DML, MOCK_ORDER_ITEM_SELECTOR, MOCK_PRODUCT_SELECTOR, MOCK_SET_HELPER);
 
     private static final Integer TEST_ORDER_QUANTITY = 1;
 	private static final List<Order> TEST_NEW_ORDER_LIST = OrderTestDataFactory.createList(TEST_ORDER_QUANTITY, MOCK_INSERT);
@@ -60,16 +61,16 @@ public class OrderHelperTest {
 	private static void setupMocksForUpdate() {
     	MOCK_ORDER_ITEM_SELECTOR.returnedOrderItemList = TEST_ORDER_ITEM_LIST;
     	Product2 testProduct = ProductTestDataFactory.create(MOCK_INSERT);
-    	MOCK_ORDER_ITEM_SELECTOR.returnedProductMap = new Map<Id, Product2>{testProduct.id => testProduct}; 
+    	MOCK_PRODUCT_SELECTOR.returnedProductMap = new Map<Id, Product2>{testProduct.id => testProduct}; 
 	}
 	
 	private static void assertUpdateOrderItemQuantities(List<OrderItem> resultOrderItemList) {
     	System.assertEquals(TEST_ACTIVATED_ORDER_ID_SET, MOCK_ORDER_ITEM_SELECTOR.receivedOrderIdSet);
 
     	Map<Id, Product2> expectedProductMap = new Map<Id, Product2>{TEST_PRICEBOOK_ENTRY.Product2Id => TEST_PRICEBOOK_ENTRY.Product2};
-    	System.assertEquals(expectedProductMap, MOCK_ORDER_ITEM_SELECTOR.receivedProductMap);
+    	System.assertEquals(expectedProductMap, MOCK_PRODUCT_SELECTOR.receivedProductMap);
     	
-    	System.assertEquals(MOCK_ORDER_ITEM_SELECTOR.returnedProductMap.values(), MOCK_GENERIC_DML.updatedSObjectListList[0]);
+    	System.assertEquals(MOCK_PRODUCT_SELECTOR.returnedProductMap.values(), MOCK_GENERIC_DML.updatedSObjectListList[0]);
     	System.assertEquals(TEST_ORDER_ITEM_LIST, resultOrderItemList);
 	}
     

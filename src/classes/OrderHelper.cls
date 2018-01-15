@@ -1,20 +1,23 @@
 public class OrderHelper {
 	F45_DML_GenericDml genericDml;
 	OrderItemSelector orderItemSelector;
+	ProductSelector productSelector;
 	SetHelper setHelper;
 	
 	public OrderHelper(
 			F45_DML_GenericDml genericDml, 
-			OrderItemSelector orderItemSelector, 
+			OrderItemSelector orderItemSelector,
+			ProductSelector productSelector, 
 			SetHelper setHelper
 		) {
 		this.genericDml = genericDml;
 		this.orderItemSelector = orderItemSelector;
+		this.productSelector = productSelector;
 		this.setHelper = setHelper;
 	}	
 
 	public OrderHelper() {
-		this(new F45_DML_GenericDml(), new OrderItemSelector(), new SetHelper());
+		this(new F45_DML_GenericDml(), new OrderItemSelector(), new ProductSelector(), new SetHelper());
 	}	
 
 	private static String ACTIVATED_ORDER_STATUS = Constants.ACTIVATED_ORDER_STATUS;
@@ -47,7 +50,7 @@ public class OrderHelper {
     public static void rollUpOrderItems(Set<Id> activatedOrderIds){
     	(new OrderHelper()).updateOrderItemQuantities(activatedOrderIds);
     }
-    
+     
     @testVisible
     private List<OrderItem> updateOrderItemQuantities(Set<Id> activatedOrderIdSet) {
         List<OrderItem> orderItemList = this.orderItemSelector.selectByOrderId(activatedOrderIdSet);
@@ -57,7 +60,7 @@ public class OrderHelper {
         	productMap.put(orderItem.Pricebookentry.Product2Id, orderItem.Pricebookentry.Product2);
         }
         
-		Map<Id, Product2> resultProductMap = this.orderItemSelector.aggregateQuantityOrderedByProduct2(productMap);
+		Map<Id, Product2> resultProductMap = this.productSelector.aggregateQuantityOrderedByProduct2(productMap);
         this.genericDml.doUpdate(resultProductMap.values());
         return orderItemList;
     }
