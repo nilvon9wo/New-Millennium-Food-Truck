@@ -4,12 +4,12 @@ public class VisualForceHelperMock extends VisualForceHelper {
 	public ApexPages.message returnedMessage;
 	
     public override ApexPages.message addInfoMessage(String message){
-    	this.receivedMessage = receivedMessage;
+    	this.receivedMessage = message;
     	return this.returnedMessage;
     }
 
     public override ApexPages.message addErrorMessage(String message){
-    	this.receivedMessage = receivedMessage;
+    	this.receivedMessage = message;
     	return this.returnedMessage;
     }
 }

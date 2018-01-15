@@ -30,12 +30,6 @@ public class Product2Extension {
 
 	private static final String SELECT_ONE = Constants.SELECT_ONE;
 
-    public void addRows(){
-        for (Integer i = 0; i < Constants.DEFAULT_ROWS; i++){
-            productsToInsert.add( new ProductWrapper() );
-        }
-    }
- 
     public List<ChartHelper.ChartData> getInventory(){
         return this.chartHelper.selectRemainingProductList();
     }
@@ -107,5 +101,11 @@ public class Product2Extension {
     private void resetForm() {
     		this.productsToInsert.clear();
 	    	this.addRows();
+    }
+
+    public void addRows(){
+        for (Integer i = 0; i < Constants.DEFAULT_ROWS; i++){
+            productsToInsert.add( new ProductWrapper() );
+        }
     }
 }
