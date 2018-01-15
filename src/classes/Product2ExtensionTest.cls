@@ -3,8 +3,8 @@ public class Product2ExtensionTest {
 	private static final User TEST_USER = TEST_RunAsUserFactory.create(); 
 	
 	private static final ApexPages.StandardController TEST_STANDARD_CONTROLLER = new ApexPages.StandardController(new Product2()); 
-	private static final ChartHelper MOCK_CHART_HELPER = new ChartHelperMock(); 
-    private static final DatabaseHelper MOCK_DATABASE_HELPER = new DatabaseHelperMock(); 
+	private static final ChartHelperMock MOCK_CHART_HELPER = new ChartHelperMock(); 
+    private static final DatabaseHelperMock MOCK_DATABASE_HELPER = new DatabaseHelperMock(); 
     private static final F45_DML_GenericDmlMock MOCK_GENERIC_DML = new F45_DML_GenericDmlMock();
     private static final VisualForceHelperMock MOCK_VISUAL_FORCE_HELPER = new VisualForceHelperMock();
 	private static final Product2Extension EXTENSION_UNDER_TEST = new Product2Extension(
@@ -22,74 +22,189 @@ public class Product2ExtensionTest {
 
 	private static final String DUMMY_ERROR_MESSAGE = 'Save Failed';
 
+	@isTest public static void testGetInventoryShouldReturnRemainingProducts() {
+		// Arrange
+		MOCK_CHART_HELPER.returnedChartDataList = new List<ChartHelper.ChartData>();
+
+		// Act
+		List<ChartHelper.ChartData> resultChartDataList;
+		Test.startTest();
+		System.runAs(TEST_USER) {
+			resultChartDataList = EXTENSION_UNDER_TEST.getInventory();
+		}
+		Test.stopTest();
+		
+		// Assert
+		System.assertEquals(MOCK_CHART_HELPER.returnedChartDataList, resultChartDataList);
+	}
+
+	@isTest public static void testGetFamilyOptionsShouldConvertProductFamilyToPicklist() {
+		// Arrange
+		// Nothing to do here
+
+		// Act
+		List<SelectOption> resultSelectOptionList;
+		Test.startTest();
+		System.runAs(TEST_USER) {
+			resultSelectOptionList = EXTENSION_UNDER_TEST.getFamilyOptions();
+		}
+		Test.stopTest();
+		
+		// Assert
+		System.assertEquals(Constants.PRODUCT_FAMILY.size() + 1, resultSelectOptionList.size()); 
+		
+		Map<String, Boolean> hasValueByPicklistLabelMap = new Map<String, Boolean>{
+			Constants.SELECT_ONE => false
+		};
+		Map<String, String> valueByByPicklistLabelMap = new Map<String, String>{
+			Constants.SELECT_ONE => Constants.SELECT_ONE
+		};
+		for (Schema.PicklistEntry picklistEntry : Constants.PRODUCT_FAMILY) {
+			valueByByPicklistLabelMap.put(picklistEntry.getLabel(), picklistEntry.getValue());
+			hasValueByPicklistLabelMap.put(picklistEntry.getLabel(), false);
+		} 
+		
+		for (SelectOption resultSelectOption : resultSelectOptionList) { 
+			String optionLabel = resultSelectOption.getLabel();
+			String optionValue = resultSelectOption.getValue();
+			String picklistValue = valueByByPicklistLabelMap.get(optionLabel); 
+			
+			hasValueByPicklistLabelMap.put(optionLabel, picklistValue.equals(optionValue));
+		}
+		
+		for (String label: hasValueByPicklistLabelMap.keySet()) {
+			System.assert(hasValueByPicklistLabelMap.get(label));
+		}
+	}
 	
-	@isTest public static void testGetInventoryShouldReturnRemainingProducts() {/* TODO */}
-	@isTest public static void testGetFamilyOptionsShouldConvertProductFamilyToPicklist() {/* TODO */}
-	@isTest public static void testSaveShouldSaveProductsAndResetForm() {/* TODO */}
-	@isTest public static void testSaveShouldRollbackDatabaseAndDisplayMessageOnFailure() {/* TODO */}
-	@isTest public static void testBuildProductByPriceBookEntryMapShouldCreateMap() {/* TODO */}
+	@isTest public static void testSaveShouldSaveProductsAndResetForm()  {
+		// Arrange
+		MOCK_DATABASE_HELPER.returnedSavePoint = Database.setSavePoint(); // Unfortunately SavePoint can't be constructed.  :-( 
+		EXTENSION_UNDER_TEST.productsToInsert = createTestProductWrapperList();
+
+		// Act
+		Test.startTest();
+		System.runAs(TEST_USER) {
+			EXTENSION_UNDER_TEST.save();
+		}
+		Test.stopTest();
+		
+		// Assert
+		System.assert(MOCK_DATABASE_HELPER.savePointCreated);
+		System.assertEquals(2, MOCK_GENERIC_DML.insertedSObjectListList.size());
+		
+		System.assertEquals(TEST_PRODUCT_LIST, MOCK_GENERIC_DML.insertedSObjectListList[0]);
+		String expectedMessage = TEST_PRODUCT_LIST.size() + ' Inserted';
+		System.assertEquals(expectedMessage, MOCK_VISUAL_FORCE_HELPER.receivedMessage);
+		
+		List<SObject> resultPricebookEntryList = MOCK_GENERIC_DML.insertedSObjectListList[1];
+		System.assertEquals(1, resultPricebookEntryList.size());
+		
+		PricebookEntry resultPricebookEntry = (PricebookEntry) resultPricebookEntryList[0];
+		System.assertEquals(Constants.STANDARD_PRICEBOOK_ID, resultPricebookEntry.PriceBook2Id);
+		System.assertEquals(TEST_PRODUCT.id, resultPricebookEntry.Product2Id);
+		System.assertEquals(PricebookEntryTestDataFactory.DEFAULT_UNIT_PRICE, resultPricebookEntry.UnitPrice);
+		System.assert(resultPricebookEntry.IsActive);
+	}
+	
+	@isTest public static void testSaveShouldRollbackDatabaseAndDisplayMessageOnFailure() {
+		// Arrange
+		MOCK_DATABASE_HELPER.returnedSavePoint = Database.setSavePoint(); // Unfortunately SavePoint can't be constructed.  :-( 
+		EXTENSION_UNDER_TEST.productsToInsert = createTestProductWrapperList();
+		MOCK_GENERIC_DML.returnedErrorMessage = DUMMY_ERROR_MESSAGE;
+
+		// Act
+		Test.startTest();
+		System.runAs(TEST_USER) {
+			EXTENSION_UNDER_TEST.save();
+		}
+		Test.stopTest();
+		
+		// Assert
+		System.assert(MOCK_DATABASE_HELPER.savePointCreated);
+		System.assertEquals(MOCK_DATABASE_HELPER.returnedSavePoint, MOCK_DATABASE_HELPER.receivedSavePoint);
+		System.assertEquals(Constants.ERROR_MESSAGE + DUMMY_ERROR_MESSAGE, MOCK_VISUAL_FORCE_HELPER.receivedMessage);
+	}
+	
+	@isTest public static void testBuildProductByPriceBookEntryMapShouldCreateMap() {
+		// Arrange
+		EXTENSION_UNDER_TEST.productsToInsert = createTestProductWrapperList();
+
+		// Act
+		Map<PriceBookEntry, Product2> resultMap;
+		Test.startTest();
+		System.runAs(TEST_USER) {
+			resultMap = EXTENSION_UNDER_TEST.buildProductByPriceBookEntryMap();
+		}
+		Test.stopTest();
+		
+		// Assert
+		System.assertEquals(1, resultMap.size());
+		Product2 resultProduct = resultMap.get(TEST_PRICEBOOK_ENTRY);
+		System.assertEquals(TEST_PRODUCT, resultProduct);
+	}
 	
 	@isTest public static void testBuildProductByPriceBookEntryMapShouldNotMapProductsWithoutAName() {
 		// Arrange
-		ProductWrapper productWrapper = createTestProductWrapper();
-		productWrapper.productRecord.Name = null;
+		EXTENSION_UNDER_TEST.productsToInsert = createTestProductWrapperList();
+		EXTENSION_UNDER_TEST.productsToInsert[0].productRecord.Name = null;
 	
 		testBuildProductByPriceBookEntryMapShouldFail();	
 	}
 	
 	@isTest public static void testBuildProductByPriceBookEntryMapShouldNotMapProductsWithoutAFamily() {
 		// Arrange
-		ProductWrapper productWrapper = createTestProductWrapper();
-		productWrapper.productRecord.Family = null;
+		EXTENSION_UNDER_TEST.productsToInsert = createTestProductWrapperList();
+		EXTENSION_UNDER_TEST.productsToInsert[0].productRecord.Family = null;
 	
 		testBuildProductByPriceBookEntryMapShouldFail();	
 	}
 	
 	@isTest public static void testBuildProductByPriceBookEntryMapShouldNotMapProductsWithoutASelectedFamily() {
 		// Arrange
-		ProductWrapper productWrapper = createTestProductWrapper();
-		productWrapper.productRecord.Family = Constants.SELECT_ONE;
+		EXTENSION_UNDER_TEST.productsToInsert = createTestProductWrapperList();
+		EXTENSION_UNDER_TEST.productsToInsert[0].productRecord.Family = Constants.SELECT_ONE;
 	
 		testBuildProductByPriceBookEntryMapShouldFail();	
 	}
 	
 	@isTest public static void testBuildProductByPriceBookEntryMapShouldNotMapProductsWithoutAnInventoryValue() {
 		// Arrange
-		ProductWrapper productWrapper = createTestProductWrapper();
-		productWrapper.productRecord.Initial_Inventory__c = null;
+		EXTENSION_UNDER_TEST.productsToInsert = createTestProductWrapperList();
+		EXTENSION_UNDER_TEST.productsToInsert[0].productRecord.Initial_Inventory__c = null;
 	
 		testBuildProductByPriceBookEntryMapShouldFail();	
 	}
 	
 	@isTest public static void testBuildProductByPriceBookEntryMapShouldNotMapProductsWithoutAPositiveInventoryValue() {
 		// Arrange
-		ProductWrapper productWrapper = createTestProductWrapper();
-		productWrapper.productRecord.Initial_Inventory__c = 0;
+		EXTENSION_UNDER_TEST.productsToInsert = createTestProductWrapperList();
+		EXTENSION_UNDER_TEST.productsToInsert[0].productRecord.Initial_Inventory__c = 0;
 	
 		testBuildProductByPriceBookEntryMapShouldFail();	
 	}
 	
 	@isTest public static void testBuildProductByPriceBookEntryMapShouldNotMapProductsWithoutActivation() {
 		// Arrange
-		ProductWrapper productWrapper = createTestProductWrapper();
-		productWrapper.priceBookEntryRecord.IsActive = false;
+		EXTENSION_UNDER_TEST.productsToInsert = createTestProductWrapperList();
+		EXTENSION_UNDER_TEST.productsToInsert[0].productRecord.IsActive = false;
 	
 		testBuildProductByPriceBookEntryMapShouldFail();	
 	}
 	
 	@isTest public static void testBuildProductByPriceBookEntryMapShouldNotMapProductsWithoutAUnitPrice() {
 		// Arrange
-		ProductWrapper productWrapper = createTestProductWrapper();
-		productWrapper.priceBookEntryRecord.UnitPrice = null;
+		EXTENSION_UNDER_TEST.productsToInsert = createTestProductWrapperList();
+		EXTENSION_UNDER_TEST.productsToInsert[0].priceBookEntryRecord.UnitPrice = null;
 	
 		testBuildProductByPriceBookEntryMapShouldFail();	
 	}
 
-	private static ProductWrapper createTestProductWrapper() {
+	private static List<productWrapper> createTestProductWrapperList() {
 		ProductWrapper productWrapper = new ProductWrapper();
-		productWrapper.productRecord = TEST_PRODUCT.clone();
-		productWrapper.priceBookEntryRecord = TEST_PRICEBOOK_ENTRY.clone();
-		return productWrapper;
+		productWrapper.productRecord = TEST_PRODUCT;
+		productWrapper.priceBookEntryRecord = TEST_PRICEBOOK_ENTRY;
+		return new List<productWrapper>{productWrapper};
 	}
 
 	@isTest public static void testBuildProductByPriceBookEntryMapShouldNotCreateMapWhenThereAreNoProductsToInsert() {
