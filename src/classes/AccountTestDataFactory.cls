@@ -3,7 +3,7 @@ public class AccountTestDataFactory {
     public static final String PREFIX = Account.SObjectType.getDescribe().getKeyPrefix();
     public static final Id EXAMPLE_ID = PREFIX + '3E000003NYTS';
 
-	public static final String DEFAULT_NAME_PREFIX = 'Account ';
+	public static final String DEFAULT_NAME_PREFIX = 'Mozart MegaCorp';
 
     public static List<Account> createList(
     		Integer quantity,  

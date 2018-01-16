@@ -56,4 +56,4 @@ public class OrderHelperIntTest {
     	Integer expectedQuantity = ProductTestDataFactory.DEFAULT_INITIAL_INVENTORY - OrderItemTestDataFactory.DEFAULT_QUANTITY;
     	System.assertEquals (expectedQuantity, resultProductList[0].Quantity_Ordered__c);
 	}
-} 
+}

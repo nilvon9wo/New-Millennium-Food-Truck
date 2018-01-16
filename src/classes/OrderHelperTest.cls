@@ -74,4 +74,4 @@ public class OrderHelperTest {
     	System.assertEquals(TEST_ORDER_ITEM_LIST, resultOrderItemList);
 	}
     
-} 
+}
