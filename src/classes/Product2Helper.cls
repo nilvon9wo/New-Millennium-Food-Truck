@@ -1,51 +1,77 @@
-public class Product2Helper {
+public class Product2Helper { 
+	CollaborationGroupSelector collaborationGroupSelector;
+	InventorySettingSelector inventorySettingSelector;
+	
+	public Product2Helper(CollaborationGroupSelector collaborationGroupSelector, InventorySettingSelector inventorySettingSelector) {
+		this.collaborationGroupSelector = collaborationGroupSelector;
+		this.inventorySettingSelector = inventorySettingSelector;
+	} 
 
-    /**
-     * @name COLLABORATION_GROUP
-     * @description List of CollaborationGroup used in both business and test logic
-    **/
-    static List<CollaborationGroup> COLLABORATION_GROUP = [
-        SELECT Id
-        FROM CollaborationGroup
-        WHERE Name = 'group name'
-        OR Name = :('TEST'+'group name')
-        LIMIT 1
-    ];
+	public Product2Helper() {
+		this(new CollaborationGroupSelector(), new InventorySettingSelector());
+	}
 
-    /**
-     * @name afterUpdate
-     * @description called by product2 Trigger on After Update
-     * @param List<Product2> newList
-     * @param List<Product2> oldList
-    **/
-    public static void AfterUpdate(){
-        //ToDo: Declare a List of Product2 records named needsAnnouncement
+    static CollaborationGroup COLLABORATION_GROUP = (new Product2Helper()).selectInventoryAnnouncementCollaborationGroup(); 
+    
+    private CollaborationGroup selectInventoryAnnouncementCollaborationGroup() {
+    	return this.collaborationGroupSelector.selectByName(Constants.INVENTORY_ANNOUNCEMENTS); 
+    } 
 
-        //ToDo: Declare a Map of Strings to Inventory_Setting__mdt records
-
-        //ToDo: Loop through a query of Inventory_Setting__mdt records and populate the Map with Name as the key
-
-        //ToDo: Loop through the Products in newList
-        // Use the corresponding Inventory Setting record to determine the correct Low Quantity Alert
-        // If the Product's Quantity Remaining has been changed to less than the Low Quantity Alert
-        //      add it to the needsAnnouncement list
-
-        //ToDo: Pass records to the postAlerts method
+    public static void afterUpdate(List<Product2> oldList, List<Product2> newList){
+    	(new Product2Helper()).onAfterUpdate(oldList, newList);
+    }
+    
+    public void onAfterUpdate(List<Product2> oldProductList, List<Product2> newProductList){
+		Map<String, Decimal> inventoryLowQualityAlertByProductNameMap = new Map<String, Decimal>();
+        for (Inventory_Setting__mdt inventorySetting : this.inventorySettingSelector.selectAll()) {
+            inventoryLowQualityAlertByProductNameMap.put(inventorySetting.DeveloperName, inventorySetting.Low_Quantity_Alert__c);
+        }
+        
+        List<Product2> needsAnnouncementList = new List<Product2>();
+        for (Product2 newProduct : newProductList) {
+            if (
+            	inventoryLowQualityAlertByProductNameMap.containsKey(newProduct.Name) 
+            	&& newProduct.Quantity_Remaining__c < inventoryLowQualityAlertByProductNameMap.get(newProduct.Name)
+            ) {
+                needsAnnouncementList.add(newProduct);
+            }
+        }
+        this.doPostAlerts(needsAnnouncementList);
     }
 
-    /**
-     * @name postAlerts
-     * @description called by product2 Trigger on After Update
-     * @param List<Product2> productList
-    **/
     public static void PostAlerts(List<Product2> productList){
-        List<ConnectApi.AnnouncementInput> toPost = new List<ConnectApi.AnnouncementInput>();
-        for ( Product2 p : productList ){
-            // ToDo: Construct a new AnnouncementInput for the Chatter Group so that it:
-            // expires in a day
-            // does not notify users via email.
-            // and has a text body that includes the name of the product followed by the INVENTORY_LEVEL_LOW constant
+    	(new Product2Helper()).doPostAlerts(productList);
+    }
+ 
+    public void doPostAlerts(List<Product2> productList){
+        List<ConnectApi.AnnouncementInput> announcementInputList = new List<ConnectApi.AnnouncementInput>();
+        for ( Product2 product : productList ){
+            ConnectApi.TextSegmentInput textSegmentInput = this.createTextSegmentInput(product);
+            ConnectApi.MessageBodyInput messageBodyInput = this.createMessageBodyInput(textSegmentInput);
+            announcementInputList.add(this.createAnnouncementInput(messageBodyInput));
         }
-        // ToDo: Create and enqueue an instance of the announcementQueuable class with the list of Products
+        System.enqueueJob(new AnnouncementQueueable(announcementInputList)); 
+    } 
+
+	private ConnectApi.TextSegmentInput createTextSegmentInput(Product2 product) {
+		ConnectApi.TextSegmentInput textSegmentInput = new ConnectApi.TextSegmentInput();
+        textSegmentInput.text = product.Name + Constants.INVENTORY_LEVEL_LOW;
+        return textSegmentInput;
+	}
+    
+    private ConnectApi.MessageBodyInput createMessageBodyInput(ConnectApi.TextSegmentInput textSegmentInput) {
+    	ConnectApi.MessageBodyInput messageBodyInput = new ConnectApi.MessageBodyInput();
+        messageBodyInput.messageSegments = new List<ConnectApi.MessageSegmentInput>();
+        messageBodyInput.messageSegments.add(textSegmentInput);
+        return messageBodyInput;
+    }
+    
+    private ConnectApi.AnnouncementInput createAnnouncementInput(ConnectApi.MessageBodyInput messageBodyInput) {
+		ConnectApi.AnnouncementInput announcementInput = new ConnectApi.AnnouncementInput();
+        announcementInput.expirationDate = Date.today().addDays(1);
+        announcementInput.sendEmails = true;
+        announcementInput.parentId = COLLABORATION_GROUP.Id;
+        announcementInput.body = messageBodyInput;
+        return announcementInput; 
     }
 }

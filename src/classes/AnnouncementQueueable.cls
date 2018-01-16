@@ -1,33 +1,25 @@
-/**
- * @name AnnouncementQueueable
- * @description This class posts Chatter Announcements
-**/
-public class AnnouncementQueueable {
-
+public class AnnouncementQueueable implements Queueable {
     public List<ConnectApi.AnnouncementInput> toPost;
+	
+	public AnnouncementQueueable(List<ConnectApi.AnnouncementInput> announcementInputList) {
+		this.toPost = announcementInputList;
+	}
+	
+	public void execute(System.QueueableContext queueableContext) {
+		postAnnouncements(this.toPost);	
+	}
 
-    //ToDo: Modify this class to implement the Queueable interface and call the postAnnouncements method
-
-
-    /**
-     * @name postAnnouncements
-     * @description This method is provided for you to facilitate the Super Badge
-    **/
-    public static void PostAnnouncements(List<ConnectApi.AnnouncementInput> announcements){
-        while ( announcements.size() > 0 ){
-            if ( Limits.getDMLStatements() < Limits.getLimitDMLStatements() && !test.isRunningTest() ){
-                ConnectApi.AnnouncementInput a = announcements.remove(0);
-                ConnectApi.Announcements.postAnnouncement('Internal', a);
+    public static void postAnnouncements(List<ConnectApi.AnnouncementInput> announcementInputList){
+        while ( announcementInputList.size() > 0 ){
+            if ( Limits.getDMLStatements() < Limits.getLimitDMLStatements() && !Test.isRunningTest() ){
+                ConnectApi.AnnouncementInput announcementInput = announcementInputList.remove(0);
+                ConnectApi.Announcements.postAnnouncement('Internal', announcementInput);
             } else {
                 break;
             }
         }
-        if ( announcements.size() > 0 && !test.isRunningTest() ){
-            AnnouncementQueueable q = new AnnouncementQueueable();
-            q.toPost = announcements;
-
-            //ToDo: Enqueue the above instance of announcementQueueable
+        if ( announcementInputList.size() > 0 && !Test.isRunningTest() ){
+            System.enqueueJob(new AnnouncementQueueable(announcementInputList));
         }
     }
-
 }
