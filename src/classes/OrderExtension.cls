@@ -7,6 +7,25 @@ public class OrderExtension {
     ProductSelector productSelector;
     VisualForceHelper visualForceHelper;
 
+    public List<OrderItem> orderItemList {get;set;}
+    public Order orderRecord {get;set;}
+    public List<ChartHelper.ChartData> pieData {get;set;}
+    public Map<Id,OrderItem> orderItemMap {get; set;}
+    public Decimal total {get;set;}
+    public String selectedFamily {get;set;}
+
+	private ApexPages.StandardController standardController;
+    private ApexPages.StandardSetController standardSetController {
+    	get{
+    		if (this.standardSetController == null) {
+	       		this.standardSetController = new ApexPages.StandardSetController(this.pricebookEntrySelector.getQueryLocator()); 
+	          	this.standardSetController.setPageSize(Constants.DEFAULT_ROWS);
+    		}
+		    return this.standardSetController;
+    	}
+    	private set;
+    }
+    
     public OrderExtension(
     		ApexPages.StandardController standardController,
     		DatabaseHelper databaseHelper, 
@@ -26,6 +45,7 @@ public class OrderExtension {
     	this.standardController = standardController;
     	this.visualForceHelper = visualForceHelper;
     	
+    	this.orderItemMap = new Map<Id,OrderItem>();
     	this.setOrderRecord();
         this.populateOrderItemList(); 
     }
@@ -42,8 +62,19 @@ public class OrderExtension {
     		new VisualForceHelper()
     	);
     }
+    
+    private Order setOrderRecord() {
+		if (this.orderRecord == null && standardController != null) {
+	        this.orderRecord = (Order) this.standardController.getRecord(); 
+	        if ( this.orderRecord.Id != null ){
+	            this.orderRecord = this.queryOrderRecord(orderRecord.Id);
+	        }
+	        this.refreshPieChart(this.orderRecord.OrderItems);
+        }
+        return this.orderRecord;    		
+    }
 
-    public void populateOrderItemList() {
+    private void populateOrderItemList() {
         this.orderItemList = new List<OrderItem>();
         List<PricebookEntry> pricebookEntryList = (List<PricebookEntry>) this.standardSetController.getRecords();
         Map<Id, Product2> productByIdMap = new Map<Id, Product2>(this.productSelector.selectFor(pricebookEntryList));
@@ -66,45 +97,6 @@ public class OrderExtension {
         }
     }
 
-    public Map<Id,OrderItem> orderItemMap {
-    	get {
-    		if (this.orderItemMap == null) {
-    			this.orderItemMap = new Map<Id, OrderItem>();
-    		}
-    		return this.orderItemMap;
-    	}
-    	private set;
-    }
-    
-    public List<OrderItem> orderItemList {get;set;}
-    public Order orderRecord {get;set;}
-    
-    private Order setOrderRecord() {
-		if (this.orderRecord == null && standardController != null) {
-	        this.orderRecord = (Order) this.standardController.getRecord(); 
-	        if ( this.orderRecord.Id != null ){
-	            this.orderRecord = this.queryOrderRecord(orderRecord.Id);
-	        }
-	        this.refreshPieChart(this.orderRecord.OrderItems);
-        }
-        return this.orderRecord;    		
-    }
-
-    public List<ChartHelper.ChartData> pieData {get;set;}
-    public Decimal total {get;set;}
-    public String selectedFamily {get;set;}
-	private ApexPages.StandardController standardController;
-
-    public ApexPages.StandardSetController standardSetController {
-    	get{
-    		if (this.standardSetController == null) {
-	       		this.standardSetController = new ApexPages.StandardSetController(this.pricebookEntrySelector.getQueryLocator()); 
-	          	this.standardSetController.setPageSize(Constants.DEFAULT_ROWS);
-    		}
-		    return this.standardSetController;
-    	}
-    	private set;
-    }
     
     private List<ChartHelper.ChartData> refreshPieChart(List<OrderItem> orderItemList) {
         this.pieData = null;
@@ -246,7 +238,6 @@ public class OrderExtension {
     	}
     	return optionList;
     }
-    
 
     public Order queryOrderRecord(Id orderId){
     	return this.orderSelector.selectByOrderId(new Set<Id>{orderId})[0];
