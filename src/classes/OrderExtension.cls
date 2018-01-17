@@ -122,7 +122,6 @@ public class OrderExtension {
 			? productId
 			: (orderItem.Pricebookentry != null) ? orderItem.Pricebookentry.Product2Id : null;    	
     }
-    
 
     private void populateOrderItemList() {
         this.orderItemList = new List<OrderItem>();
@@ -147,10 +146,6 @@ public class OrderExtension {
         }
     }
 
-    /**
-     * @name OnFieldChange
-     * @description
-    **/
     public void onFieldChange(){
         for (OrderItem orderItem : this.orderItemList) {
             this.orderItemMap.put(this.getOrderItemProductId(orderItem), orderItem);
@@ -158,10 +153,6 @@ public class OrderExtension {
         this.refreshPieChart(this.orderItemList);
     }
 
-    /**
-     * @name SelectFamily
-     * @description
-    **/
     public void selectFamily(){
         this.resetStandardSetController();
         this.populateOrderItemList();
@@ -172,10 +163,6 @@ public class OrderExtension {
         this.standardSetController.setPageSize(Constants.DEFAULT_ROWS);
     }
 
-    /**
-     * @name Save
-     * @description
-    **/
     public void save(){
         System.Savepoint sp = Database.setSavepoint();
         try {
@@ -204,43 +191,24 @@ public class OrderExtension {
         }
     }
 
-
-    /**
-     * @name First
-     * @description
-    **/
     public void first(){
     	this.preserveValues();
         this.standardSetController.first();
         this.populateOrderItemList();
     }
 
-
-    /**
-     * @name Next
-     * @description
-    **/
     public void next(){
     	this.preserveValues();
         this.standardSetController.next();
         this.populateOrderItemList();
     }
 
-
-    /**
-     * @name Previous
-     * @description
-    **/
     public void previous(){
     	this.preserveValues();
         this.standardSetController.previous();
         this.populateOrderItemList();
     }
 
-    /**
-     * @name Last
-     * @description
-    **/
     public void last(){
     	this.preserveValues();
         this.standardSetController.last();
@@ -256,42 +224,22 @@ public class OrderExtension {
     	}
     }
 
-    /**
-     * @name GetHasPrevious
-     * @description
-    **/
     public Boolean getHasPrevious(){
         return this.standardSetController.getHasPrevious();
     }
 
-    /**
-     * @name GetHasNext
-     * @description
-    **/
     public Boolean getHasNext(){
         return this.standardSetController.getHasNext();
     }
 
-    /**
-     * @name GetTotalPages
-     * @description
-    **/
     public Integer getTotalPages(){
         return (Integer) Math.ceil(this.standardSetController.getResultSize() / (Decimal)Constants.DEFAULT_ROWS);
     }
 
-    /**
-     * @name GetPageNumber
-     * @description
-    **/
     public Integer getPageNumber(){
         return this.standardSetController.getPageNumber();
     }
 
-    /**
-     * @name GetFamilyOptions
-     * @description
-    **/
     public List<SelectOption> getFamilyOptions(){
     	// return this.product2Helper.getFamilyOptions();
     	List<SelectOption> optionList = new List<SelectOption>();
@@ -303,10 +251,6 @@ public class OrderExtension {
     	return optionList;
     }
 
-    /**
-     * @name QueryOrderRecord
-     * @description
-    **/
     public static Order queryOrderRecord(Id orderId){
     	return (new OrderExtension()).selectOrderRecord(orderId);
     }
