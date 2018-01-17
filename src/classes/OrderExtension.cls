@@ -1,3 +1,7 @@
+/**
+ * @name OrderExtension
+ * @description This class is provided for you to facilitate the Super Badge
+**/
 public class OrderExtension {
     DatabaseHelper databaseHelper;
     F45_DML_GenericDml genericDml;
@@ -9,13 +13,13 @@ public class OrderExtension {
 
     public List<OrderItem> orderItemList {get;set;}
     public Order orderRecord {get;set;}
-    public List<ChartHelper.ChartData> pieData {get;set;}
-    public Map<Id,OrderItem> orderItemMap {get; set;}
+    public List<chartHelper.chartData> pieData {get;set;}
+    public Map<Id,OrderItem> orderItemMap;
     public Decimal total {get;set;}
     public String selectedFamily {get;set;}
 
-	private ApexPages.StandardController standardController;
-    private ApexPages.StandardSetController standardSetController {
+	ApexPages.StandardController standardController;
+    ApexPages.StandardSetController standardSetController {
     	get{
     		if (this.standardSetController == null) {
 	       		this.standardSetController = new ApexPages.StandardSetController(this.pricebookEntrySelector.getQueryLocator()); 
@@ -47,6 +51,8 @@ public class OrderExtension {
     	
     	this.orderItemMap = new Map<Id,OrderItem>();
     	this.setOrderRecord();
+        this.refreshPieChart(this.orderRecord.OrderItems);
+
         this.populateOrderItemList(); 
     }
     
@@ -62,17 +68,61 @@ public class OrderExtension {
     		new VisualForceHelper()
     	);
     }
+
+    public OrderExtension(){
+    	this(null);
+    }
     
-    private Order setOrderRecord() {
-		if (this.orderRecord == null && standardController != null) {
+    private Order setOrderRecord() { 
+		if (this.standardController != null) {
 	        this.orderRecord = (Order) this.standardController.getRecord(); 
 	        if ( this.orderRecord.Id != null ){
-	            this.orderRecord = this.queryOrderRecord(orderRecord.Id);
+	            this.orderRecord = this.selectOrderRecord(orderRecord.Id);
 	        }
-	        this.refreshPieChart(this.orderRecord.OrderItems);
         }
         return this.orderRecord;    		
     }
+
+    private Order selectOrderRecord(Id orderId){
+    	return this.orderSelector.selectByOrderId(new Set<Id>{orderId})[0];
+    }
+
+    private List<ChartHelper.ChartData> refreshPieChart(List<OrderItem> orderItemList) {
+        this.pieData = null;
+        this.total = 0;
+        
+        for (OrderItem orderItem : this.orderRecord.OrderItems) {
+        	this.addToPieChart(orderItem);
+        }
+        return this.pieData;
+    }
+    
+    private List<ChartHelper.ChartData> addToPieChart(OrderItem orderItem){
+        this.orderItemMap.put(this.getOrderItemProductId(orderItem), orderItem);
+        if (orderItem.Quantity > 0) {
+            if (null == this.pieData) {
+                this.pieData = new List<ChartHelper.ChartData>();
+            }
+            this.pieData.add(new ChartHelper.ChartData(orderItem.PricebookEntry.Product2.Name, orderItem.Quantity * orderItem.UnitPrice));
+            this.total += orderItem.UnitPrice * orderItem.Quantity;
+        }
+        return this.pieData;
+    }
+
+    private Id getOrderItemProductId (OrderItem orderItem) {
+    	Id productId;
+    	try {
+    		productId = orderItem.Product2Id;
+    	}
+    	catch (SObjectException ex) {
+    		// Because SFDC has internal inconsistencies with regard to the relationship between Pricebooks and Products.
+    	}
+    	
+		return (productId != null)
+			? productId
+			: (orderItem.Pricebookentry != null) ? orderItem.Pricebookentry.Product2Id : null;    	
+    }
+    
 
     private void populateOrderItemList() {
         this.orderItemList = new List<OrderItem>();
@@ -97,60 +147,35 @@ public class OrderExtension {
         }
     }
 
-    
-    private List<ChartHelper.ChartData> refreshPieChart(List<OrderItem> orderItemList) {
-        this.pieData = null;
-        this.total = 0;
-        
-        for (OrderItem orderItem : this.orderRecord.OrderItems) {
-        	this.addToPieChart(orderItem);
-        }
-        return this.pieData;
-    }
-    
-    private List<ChartHelper.ChartData> addToPieChart(OrderItem orderItem){
-        this.orderItemMap.put(this.getOrderItemProductId(orderItem), orderItem);
-        if (orderItem.Quantity > 0) {
-            if (null == this.pieData) {
-                this.pieData = new List<ChartHelper.ChartData>();
-            }
-            this.pieData.add(new ChartHelper.ChartData(orderItem.PricebookEntry.Product2.Name, orderItem.Quantity * orderItem.UnitPrice));
-            this.total += orderItem.UnitPrice * orderItem.Quantity;
-        }
-        return this.pieData;
-    }
-    
-    private Id getOrderItemProductId (OrderItem orderItem) {
-    	Id productId;
-    	try {
-    		productId = orderItem.Product2Id;
-    	}
-    	catch (SObjectException ex) {
-    		// Because SFDC has internal inconsistencies with regard to the relationship between Pricebooks and Products.
-    	}
-    	
-		return (productId != null)
-			? productId
-			: (orderItem.Pricebookentry != null) ? orderItem.Pricebookentry.Product2Id : null;    	
-    }
-    
-    public void resetStandardSetController() {
-        this.standardSetController = new ApexPages.StandardSetController(this.pricebookEntrySelector.getQueryLocatorForFamily(this.selectedFamily));
-        this.standardSetController.setPageSize(Constants.DEFAULT_ROWS);
-    }
-
+    /**
+     * @name OnFieldChange
+     * @description
+    **/
     public void onFieldChange(){
         for (OrderItem orderItem : this.orderItemList) {
             this.orderItemMap.put(this.getOrderItemProductId(orderItem), orderItem);
         }
         this.refreshPieChart(this.orderItemList);
     }
-    
+
+    /**
+     * @name SelectFamily
+     * @description
+    **/
     public void selectFamily(){
         this.resetStandardSetController();
         this.populateOrderItemList();
     }
 
+    private void resetStandardSetController() {
+        this.standardSetController = new ApexPages.StandardSetController(this.pricebookEntrySelector.getQueryLocatorForFamily(this.selectedFamily));
+        this.standardSetController.setPageSize(Constants.DEFAULT_ROWS);
+    }
+
+    /**
+     * @name Save
+     * @description
+    **/
     public void save(){
         System.Savepoint sp = Database.setSavepoint();
         try {
@@ -179,39 +204,50 @@ public class OrderExtension {
         }
     }
 
+
+    /**
+     * @name First
+     * @description
+    **/
     public void first(){
     	this.preserveValues();
         this.standardSetController.first();
         this.populateOrderItemList();
     }
 
+
+    /**
+     * @name Next
+     * @description
+    **/
     public void next(){
     	this.preserveValues();
         this.standardSetController.next();
         this.populateOrderItemList();
     }
 
+
+    /**
+     * @name Previous
+     * @description
+    **/
     public void previous(){
     	this.preserveValues();
         this.standardSetController.previous();
         this.populateOrderItemList();
     }
 
+    /**
+     * @name Last
+     * @description
+    **/
     public void last(){
     	this.preserveValues();
         this.standardSetController.last();
         this.populateOrderItemList();
     }
 
-    public Boolean getHasPrevious(){
-        return this.standardSetController.getHasPrevious();
-    }
-
-    public Boolean getHasNext(){
-        return this.standardSetController.getHasNext();
-    }
-    
-    public void preserveValues() {
+    private void preserveValues() {
     	for (OrderItem orderItem : this.orderItemList) {
     		Id productId = this.getOrderItemProductId(orderItem);
     		if (productId != null) {
@@ -220,15 +256,43 @@ public class OrderExtension {
     	}
     }
 
-    public Integer getTotalPages() {
+    /**
+     * @name GetHasPrevious
+     * @description
+    **/
+    public Boolean getHasPrevious(){
+        return this.standardSetController.getHasPrevious();
+    }
+
+    /**
+     * @name GetHasNext
+     * @description
+    **/
+    public Boolean getHasNext(){
+        return this.standardSetController.getHasNext();
+    }
+
+    /**
+     * @name GetTotalPages
+     * @description
+    **/
+    public Integer getTotalPages(){
         return (Integer) Math.ceil(this.standardSetController.getResultSize() / (Decimal)Constants.DEFAULT_ROWS);
     }
 
+    /**
+     * @name GetPageNumber
+     * @description
+    **/
     public Integer getPageNumber(){
         return this.standardSetController.getPageNumber();
     }
 
-    public List<SelectOption> getFamilyOptions() {
+    /**
+     * @name GetFamilyOptions
+     * @description
+    **/
+    public List<SelectOption> getFamilyOptions(){
     	// return this.product2Helper.getFamilyOptions();
     	List<SelectOption> optionList = new List<SelectOption>();
     	String SELECT_ONE = Constants.SELECT_ONE;
@@ -239,7 +303,11 @@ public class OrderExtension {
     	return optionList;
     }
 
-    public Order queryOrderRecord(Id orderId){
-    	return this.orderSelector.selectByOrderId(new Set<Id>{orderId})[0];
+    /**
+     * @name QueryOrderRecord
+     * @description
+    **/
+    public static Order queryOrderRecord(Id orderId){
+    	return (new OrderExtension()).selectOrderRecord(orderId);
     }
 }
