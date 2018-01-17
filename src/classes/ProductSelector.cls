@@ -1,4 +1,23 @@
-public virtual class ProductSelector { 
+public virtual class ProductSelector {
+	SetHelper setHelper;
+	
+	public ProductSelector(SetHelper setHelper) {
+		this.setHelper = setHelper;
+	}
+	
+	public ProductSelector() {
+		this(new SetHelper());
+	}
+	
+	public virtual List<Product2> selectFor(List<PricebookEntry> pricebookEntryList) {
+		Set<Id> productIdSet = this.setHelper.buildIdSetFor(pricebookEntryList, PricebookEntry.Product2Id);
+		return [
+			SELECT Id, Family, Name, Quantity_Remaining__c
+			FROM Product2
+			WHERE Id IN :productIdSet
+		];
+	}
+	 
 	public virtual List<AggregateResult> aggregateRemainingProduct() {
 		return [
 			SELECT Family family, SUM(Quantity_Remaining__c) total

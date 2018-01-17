@@ -3,19 +3,22 @@ public class Product2Extension {
 	ChartHelper chartHelper;
     DatabaseHelper databaseHelper;
     F45_DML_GenericDml genericDml;
+    Product2Helper product2Helper;
 	VisualForceHelper visualForceHelper;
    
     public Product2Extension(
     		ApexPages.StandardController controller,
     		ChartHelper chartHelper, 
     		DatabaseHelper databaseHelper, 
-    		F45_DML_GenericDml genericDml, 
+    		F45_DML_GenericDml genericDml,
+    		Product2Helper product2Helper, 
     		VisualForceHelper visualForceHelper
     	) { 
     	this.controller = controller;
     	this.chartHelper = chartHelper;
         this.databaseHelper = databaseHelper;
         this.genericDml = genericDml;
+        this.product2Helper = product2Helper;
         this.visualForceHelper = visualForceHelper;
         
         this.productsToInsert = new List<ProductWrapper>();
@@ -23,24 +26,24 @@ public class Product2Extension {
     }
 
     public Product2Extension(ApexPages.StandardController controller){
-   		this(controller, new ChartHelper(), new DatabaseHelper(), new F45_DML_GenericDml(), new VisualForceHelper());
+   		this(
+   			controller, 
+   			new ChartHelper(), 
+   			new DatabaseHelper(), 
+   			new F45_DML_GenericDml(), 
+   			new Product2Helper(), 
+   			new VisualForceHelper()
+   		);
     }
 
     public List<ProductWrapper> productsToInsert {get;set;}
-
-	private static final String SELECT_ONE = Constants.SELECT_ONE;
 
     public List<ChartHelper.ChartData> getInventory(){
         return this.chartHelper.selectRemainingProductList();
     }
     
     public List<SelectOption> getFamilyOptions() {
-    	List<SelectOption> optionList = new List<SelectOption>();
-    	optionList.add(new SelectOption(SELECT_ONE, SELECT_ONE));
-    	for (Schema.PicklistEntry picklistEntry : Constants.PRODUCT_FAMILY) {
-    		optionList.add(new SelectOption(picklistEntry.getLabel(), picklistEntry.getValue()));
-    	}
-    	return optionList;
+    	return this.product2Helper.getFamilyOptions();
     }
 
     public PageReference save() {

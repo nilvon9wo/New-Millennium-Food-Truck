@@ -1,4 +1,12 @@
 public virtual class SetHelper {
+	public virtual Set<Id> buildIdSetFor(List<SObject> sObjectList, SObjectField sObjectField) {
+		Set<Id> idSet = new Set<Id>();
+		for (SObject sObj : sObjectList) {
+			idSet.add((Id) sObj.get(sObjectField));
+		}
+		return idSet;
+	}
+	
     public virtual Set<Id> buildHasChangedToTargetValueIdSet(
     		List<SObject> newSObjectList, 
     		List<SObject> oldSObjectList, 

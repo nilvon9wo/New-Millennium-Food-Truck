@@ -2,6 +2,8 @@ public class Product2Helper {
 	CollaborationGroupSelector collaborationGroupSelector;
 	InventorySettingSelector inventorySettingSelector;
 	
+	private static final String SELECT_ONE = Constants.SELECT_ONE;
+	
 	public Product2Helper(CollaborationGroupSelector collaborationGroupSelector, InventorySettingSelector inventorySettingSelector) {
 		this.collaborationGroupSelector = collaborationGroupSelector;
 		this.inventorySettingSelector = inventorySettingSelector;
@@ -37,6 +39,15 @@ public class Product2Helper {
             }
         }
         this.doPostAlerts(needsAnnouncementList);
+    }
+
+    public List<SelectOption> getFamilyOptions() {
+    	List<SelectOption> optionList = new List<SelectOption>();
+    	optionList.add(new SelectOption(SELECT_ONE, SELECT_ONE));
+    	for (Schema.PicklistEntry picklistEntry : Constants.PRODUCT_FAMILY) {
+    		optionList.add(new SelectOption(picklistEntry.getLabel(), picklistEntry.getValue()));
+    	}
+    	return optionList;
     }
 
     public static void PostAlerts(List<Product2> productList){

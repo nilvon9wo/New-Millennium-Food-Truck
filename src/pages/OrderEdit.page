@@ -48,7 +48,7 @@
                     </apex:column>
                     <apex:column headerValue="{!$ObjectType.Product2.Fields.Family.label}">
                         <apex:outputField value="{!o.Product2.Family}" />
-                    </apex:column>
+					</apex:column>
                     <apex:column headerValue="{!$ObjectType.OrderItem.Fields.Product2Id.label}" >
                         <apex:outputField value="{!o.Product2Id}" />
                     </apex:column>
