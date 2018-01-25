@@ -25,6 +25,8 @@ public class OrderExtension {
     private enum DmlOperation { FOR_UPSERT, FOR_DELETE }
 
 	ApexPages.StandardController standardController;
+	
+	@testVisible
     ApexPages.StandardSetController standardSetController {
     	get{
     		if (this.standardSetController == null) {
@@ -89,11 +91,6 @@ public class OrderExtension {
 	        }
         }
         return this.orderRecord;    		
-    }
-
-	@testVisible
-    private Order selectOrderRecord(Id orderId){ 
-    	return this.orderSelector.selectById(new Set<Id>{orderId})[0];
     }
 
 	@testVisible
@@ -318,5 +315,10 @@ public class OrderExtension {
 
     public static Order queryOrderRecord(Id orderId){
     	return (new OrderExtension()).selectOrderRecord(orderId);
+    }
+
+	@testVisible
+    private Order selectOrderRecord(Id orderId){ 
+    	return this.orderSelector.selectById(new Set<Id>{orderId})[0];
     }
 }
