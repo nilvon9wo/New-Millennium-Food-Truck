@@ -20,7 +20,7 @@
                     <apex:pageMessage severity="Info" summary="No Products have been selected" rendered="{!pieData == null}" />
                     <apex:outputPanel rendered="{!pieData != null}" >
                         <apex:chart height="250" width="350" data="{!pieData}" >
-                            <apex:pieSeries dataField="val" labelField="name"/>
+                            <apex:pieSeries dataField="quantity" labelField="name"/>
                             <apex:legend position="right"/>
                         </apex:chart>
                     </apex:outputPanel>

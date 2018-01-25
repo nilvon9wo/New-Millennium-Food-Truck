@@ -1,16 +1,7 @@
-/**
- * @name orderTrigger
- * @description
-**/
-trigger orderTrigger on Order (
-    before insert, after insert
-    ,before update, after update
-    ,before delete, after delete
-    ,after undelete
-) {
+trigger OrderTrigger on Order (after insert, before update, after undelete) {
 	// TODO: Implement a proper trigger handler
     try {
-        if ( Trigger.New != null ){
+        if ( Trigger.new != null ){
 			OrderHelper.AfterUpdate(Trigger.new, Trigger.old);
         }
          
