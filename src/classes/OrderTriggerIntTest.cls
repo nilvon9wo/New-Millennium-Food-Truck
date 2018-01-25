@@ -10,6 +10,12 @@ public class OrderTriggerIntTest {
     private static final List<Order> TEST_ORDER_LIST = stripIds(ORDER_ITEM_BUNDLE.orderList.clone());
     
     public static Boolean isExceptionTest = false;
+    public static TEST_InsertModeEnum INSERT_NOW = TEST_InsertModeEnum.INSERT_NOW;
+	
+	@testSetup
+	static void setupTestData (){
+    	CollaborationGroupTestDataFactory.create(INSERT_NOW);
+	}	
 	
     @isTest public static void testDraftInsertionsShouldNotUpdateProducts() {
     	// Arrange
@@ -30,7 +36,7 @@ public class OrderTriggerIntTest {
     @isTest public static void testActivatingUpdatesShouldUpdateProducts() {
     	// Arrange
     	OrderItemTestDataFactory.Bundle orderItemBundle 
-    		= OrderItemTestDataFactory.createBundle(ORDER_ITEM_QUANTITY, TEST_InsertModeEnum.INSERT_NOW, TEST_InsertRelationshipsEnum.INCLUDE);
+    		= OrderItemTestDataFactory.createBundle(ORDER_ITEM_QUANTITY, INSERT_NOW, TEST_InsertRelationshipsEnum.INCLUDE);
 
 		List<Order> testOrderList = orderItemBundle.orderList;
 		testOrderList[0].status = 'Activated';

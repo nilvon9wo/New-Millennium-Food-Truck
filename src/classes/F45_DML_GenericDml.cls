@@ -9,7 +9,7 @@ public virtual class F45_DML_GenericDml {
     public virtual F45_DML_SaveResultListWrapper doInsert(List<SObject> objectList) {
     	return this.doInsert(objectList, IS_ALL_OR_NONE);
     }
-     
+    
     public virtual String doInsertOrReturnErrorMessage(List<SObject> sObjectList) { 
     	String errorMessage;
     	try {
@@ -19,8 +19,8 @@ public virtual class F45_DML_GenericDml {
     		errorMessage = ex.getMessage();
     	}
     	return errorMessage;
-    }
-
+    }    
+    
     public virtual F45_DML_SaveResultListWrapper doUpdate(List<SObject> objectList, Boolean isAllOrNone) {
     	return new F45_DML_SaveResultListWrapper(Database.update(objectList, isAllOrNone));
     }

@@ -13,7 +13,7 @@ public class F45_DML_GenericDmlMock extends F45_DML_GenericDml {
 
 	public List<List<SObject>> deletedSObjectListList = new List<List<SObject>>();
 	public List<Boolean> deleteWasAllOrNoneList = new List<Boolean>();
- 
+
 	public List<List<SObject>> undeletedSObjectListList = new List<List<SObject>>();
 	public List<Boolean> undeleteWasAllOrNoneList = new List<Boolean>();
 	
@@ -27,7 +27,7 @@ public class F45_DML_GenericDmlMock extends F45_DML_GenericDml {
    		this.insertWasAllOrNoneList.add(isAllOrNone);
    		return (F45_DML_SaveResultListWrapper) this.getNextResultList();
     }
- 
+
 	public String returnedErrorMessage; 
     public override String doInsertOrReturnErrorMessage(List<SObject> objectList) {
     	if (objectList != null && !objectList.isEmpty()) {
@@ -37,7 +37,7 @@ public class F45_DML_GenericDmlMock extends F45_DML_GenericDml {
    		this.insertWasAllOrNoneList.add(isAllOrNone);
    		return this.returnedErrorMessage;
     }
-
+    
     public override F45_DML_SaveResultListWrapper doUpdate(List<SObject> objectList, Boolean isAllOrNone) {
     	if (objectList != null && !objectList.isEmpty()) {
     		this.updatedSObjectListList.add(objectList);

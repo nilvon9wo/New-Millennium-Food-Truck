@@ -1,5 +1,5 @@
 public class OrderSelector {
-    public List<Order> selectByOrderId(Set<Id> orderIdSet) {
+    public List<Order> selectById(Set<Id> idSet) {
     	return [
             SELECT Id, AccountId, EffectiveDate, Name, Status, Pricebook2Id,
                 (
@@ -11,7 +11,7 @@ public class OrderSelector {
                     FROM OrderItems
                 )
             FROM Order
-            WHERE Id IN :orderIdSet 
+            WHERE Id IN :idSet 
         ];
     }
 }

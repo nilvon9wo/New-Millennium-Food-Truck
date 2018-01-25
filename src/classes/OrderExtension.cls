@@ -92,8 +92,8 @@ public class OrderExtension {
     }
 
 	@testVisible
-    private Order selectOrderRecord(Id orderId){
-    	return this.orderSelector.selectByOrderId(new Set<Id>{orderId})[0];
+    private Order selectOrderRecord(Id orderId){ 
+    	return this.orderSelector.selectById(new Set<Id>{orderId})[0];
     }
 
 	@testVisible
