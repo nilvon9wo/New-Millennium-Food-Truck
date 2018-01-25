@@ -3,10 +3,16 @@ public class Product2Tests {
 	private static final User TEST_USER = TEST_RunAsUserFactory.create(); 
 	private static final Integer DEFAULT_ROWS = Constants.DEFAULT_ROWS;
 	
+	private static final TEST_InsertModeEnum INSERT_NOW = TEST_InsertModeEnum.INSERT_NOW;
 	private static final TEST_InsertModeEnum INSERT_LATER = TEST_InsertModeEnum.INSERT_LATER;
 	private static final List<Product2> TEST_PRODUCT_LIST = ProductTestDataFactory.createList(DEFAULT_ROWS, INSERT_LATER); 
 	private static final List<PricebookEntry> TEST_PRICEBOOK_ENTRY_LIST = PricebookEntryTestDataFactory.createList(DEFAULT_ROWS, INSERT_LATER); 
-	
+
+	@testSetup
+	static void setupTestData (){
+    	CollaborationGroupTestDataFactory.create(INSERT_NOW);
+	}	
+		
 	@isTest 
 	public static void Product2Extension_UnitTest(){
 		// Arrange

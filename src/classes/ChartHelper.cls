@@ -1,36 +1,25 @@
 public without sharing virtual class ChartHelper {
-	ProductSelector productAggregateSelector;
+	ProductSelector productSelector;
 	
-	public ChartHelper(ProductSelector productAggregateSelector) {
-		this.productAggregateSelector = productAggregateSelector;
+	public ChartHelper(ProductSelector productSelector) {
+		this.productSelector = productSelector;
 	}
 
-	public ChartHelper() {
+	public ChartHelper() { 
 		this(new ProductSelector());
 	}
 
 	@AuraEnabled
-    public static List<ChartData> getInventory(){
+    public static List<ProductFamilyDTO> getInventory(){
     	return (new ChartHelper()).selectRemainingProductList();
     }
     
-    public virtual List<ChartData> selectRemainingProductList() {
-    	List<ChartData> chartDataList = new List<ChartData>();
-    	for (AggregateResult aggregateResult: this.productAggregateSelector.aggregateRemainingProduct()) {
-    		String family = (String) aggregateResult.get('family');
-    		Integer total = Integer.valueOf(aggregateResult.get('total'));
-    		chartDataList.add(new ChartData(family, total));
+    public virtual List<ProductFamilyDTO> selectRemainingProductList() {
+    	Map<String, Integer> remainingProductByFamilyMap = this.productSelector.selectRemainingProductQuantityByFamily();
+    	List<ProductFamilyDTO> ProductFamilyDTOList = new List<ProductFamilyDTO>();
+    	for (String family : remainingProductByFamilyMap.keySet()) {
+    		ProductFamilyDTOList.add(new ProductFamilyDTO(family, remainingProductByFamilyMap.get(family)));
     	}
-    	return ChartDataList;
+    	return ProductFamilyDTOList;
     }
-
-    public class ChartData {
-        public String name {get;set;}
-        public Decimal val {get;set;}
-
-        public ChartData(String name, Decimal val){
-            this.name = name;
-            this.val = val;
-        }
-    }
-}
+} 

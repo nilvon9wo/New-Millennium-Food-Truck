@@ -54,7 +54,7 @@ public class CollaborationGroupTestDataFactory {
 
     public static CollaborationGroup create(TEST_InsertModeEnum insertMode) {
     	CollaborationGroup templateCollaborationGroup = new CollaborationGroup(
-    		Name = 'TEST' + Constants.INVENTORY_ANNOUNCEMENTS
+    		Name = Constants.INVENTORY_ANNOUNCEMENTS
     	);
     	return createList(new List<CollaborationGroup>{templateCollaborationGroup}, insertMode)[0];
     } 

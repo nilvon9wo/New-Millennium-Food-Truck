@@ -31,22 +31,22 @@ public class Product2Extension {
    			new ChartHelper(), 
    			new DatabaseHelper(), 
    			new F45_DML_GenericDml(), 
-   			new Product2Helper(), 
+   			new Product2Helper(),  
    			new VisualForceHelper()
    		);
     }
 
     public List<ProductWrapper> productsToInsert {get;set;}
-
-    public List<ChartHelper.ChartData> getInventory(){
-        return this.chartHelper.selectRemainingProductList();
+ 
+    public List<ProductFamilyDTO> getInventory(){ 
+        return this.chartHelper.selectRemainingProductList(); 
     }
-    
+     
     public List<SelectOption> getFamilyOptions() {
     	return this.product2Helper.getFamilyOptions();
     }
 
-    public PageReference save() {
+    public PageReference save() { 
     	SavePoint savePoint = this.databaseHelper.setSavePoint();
     	Map<PriceBookEntry, Product2> productByPriceBookEntryMap;
     	String errorMessage;

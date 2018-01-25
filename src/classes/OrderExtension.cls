@@ -13,7 +13,7 @@ public class OrderExtension {
 
     public List<OrderItem> orderItemList {get;set;}
     public Order orderRecord {get;set;}
-    public List<chartHelper.chartData> pieData {get;set;}
+    public List<ProductFamilyDTO> pieData {get;set;} 
     public Map<Id,OrderItem> orderItemByProductIdMap;
     public Decimal total {get;set;}
     public String selectedFamily {get;set;}
@@ -97,7 +97,7 @@ public class OrderExtension {
     }
 
 	@testVisible
-    private List<ChartHelper.ChartData> refreshPieChart(List<OrderItem> orderItemList) {
+    private List<ProductFamilyDTO> refreshPieChart(List<OrderItem> orderItemList) {
         this.pieData = null;
         this.total = 0;
         
@@ -105,19 +105,19 @@ public class OrderExtension {
         	this.addToPieChart(orderItem);
         }
         return this.pieData;
-    }
+    } 
     
 	@testVisible
-    private List<ChartHelper.ChartData> addToPieChart(OrderItem orderItem){
+    private List<ProductFamilyDTO> addToPieChart(OrderItem orderItem){
         this.orderItemByProductIdMap.put(this.getOrderItemProductId(orderItem), orderItem);
         if (orderItem.Quantity > 0) {
             if (null == this.pieData) {
-                this.pieData = new List<ChartHelper.ChartData>();
+                this.pieData = new List<ProductFamilyDTO>();
             }
-            this.pieData.add(new ChartHelper.ChartData(orderItem.PricebookEntry.Product2.Name, orderItem.Quantity * orderItem.UnitPrice));
+            this.pieData.add(new ProductFamilyDTO(orderItem.PricebookEntry.Product2.Name, orderItem.Quantity * orderItem.UnitPrice));
             this.total += orderItem.UnitPrice * orderItem.Quantity;
         }
-        return this.pieData;
+        return this.pieData; 
     }
 
 	@testVisible

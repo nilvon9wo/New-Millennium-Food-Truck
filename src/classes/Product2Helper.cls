@@ -1,4 +1,4 @@
-public class Product2Helper { 
+public virtual class Product2Helper {   
 	CollaborationGroupSelector collaborationGroupSelector;
 	InventorySettingSelector inventorySettingSelector;
 	
@@ -13,9 +13,11 @@ public class Product2Helper {
 		this(new CollaborationGroupSelector(), new InventorySettingSelector());
 	}
 
-    static CollaborationGroup COLLABORATION_GROUP = (new Product2Helper()).selectInventoryAnnouncementCollaborationGroup(); 
+    private static final CollaborationGroup COLLABORATION_GROUP = (!Test.isRunningTest()) ? 
+    	(new Product2Helper()).selectInventoryAnnouncementCollaborationGroup() 
+    	 : (new Product2HelperMock()).selectInventoryAnnouncementCollaborationGroup(); 
     
-    private CollaborationGroup selectInventoryAnnouncementCollaborationGroup() {
+    public virtual CollaborationGroup selectInventoryAnnouncementCollaborationGroup() { 
     	return this.collaborationGroupSelector.selectByName(Constants.INVENTORY_ANNOUNCEMENTS); 
     } 
 

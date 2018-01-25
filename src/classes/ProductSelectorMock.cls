@@ -5,5 +5,10 @@ public class ProductSelectorMock extends ProductSelector {
     public override Map<Id, Product2> aggregateQuantityOrderedByProduct2(Map<Id, Product2> productMap) {
     	this.receivedProductMap = productMap;
     	return this.returnedProductMap;
-    }    
+    }
+    
+    Map<String, Integer> returnedProductByFamilyMap; 
+	public override Map<String, Integer> selectRemainingProductQuantityByFamily() { 
+		return returnedProductByFamilyMap;
+	}
 }

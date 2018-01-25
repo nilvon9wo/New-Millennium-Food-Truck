@@ -5,10 +5,16 @@ public class Product2ExtensionIntTest {
 	private static final ApexPages.StandardController TEST_STANDARD_CONTROLLER = new ApexPages.StandardController(new Product2()); 
 	private static final Product2Extension EXTENSION_UNDER_TEST = new Product2Extension(TEST_STANDARD_CONTROLLER);
 	
+	private static final TEST_InsertModeEnum INSERT_NOW = TEST_InsertModeEnum.INSERT_NOW;
 	private static final TEST_InsertModeEnum INSERT_LATER = TEST_InsertModeEnum.INSERT_LATER;
 	private static final Product2 TEST_PRODUCT = ProductTestDataFactory.create(INSERT_LATER);
 	private static final PriceBookEntry TEST_PRICEBOOK_ENTRY = PricebookEntryTestDataFactory.create(INSERT_LATER);
 	
+	@testSetup
+	static void setupTestData (){
+    	CollaborationGroupTestDataFactory.create(INSERT_NOW);
+	}	
+		
 	@isTest public static void testSaveShouldSaveProductsAndResetForm()  {
 		// Arrange
 		EXTENSION_UNDER_TEST.productsToInsert = createTestProductWrapperList();

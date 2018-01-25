@@ -11,4 +11,4 @@ public class DatabaseHelperMock extends DatabaseHelper{
     public override void rollback(SavePoint savePoint) {
     	this.receivedSavePoint = savePoint;
     }
-}
+} 

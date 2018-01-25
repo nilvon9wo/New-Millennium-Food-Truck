@@ -1,49 +1,61 @@
 @isTest
 public class Product2ExtensionTest {
 	private static final User TEST_USER = TEST_RunAsUserFactory.create(); 
+	private static final TEST_InsertModeEnum MOCK_INSERT = TEST_InsertModeEnum.MOCK_INSERT;
 	
 	private static final ApexPages.StandardController TEST_STANDARD_CONTROLLER = new ApexPages.StandardController(new Product2()); 
 	private static final ChartHelperMock MOCK_CHART_HELPER = new ChartHelperMock(); 
     private static final DatabaseHelperMock MOCK_DATABASE_HELPER = new DatabaseHelperMock(); 
     private static final F45_DML_GenericDmlMock MOCK_GENERIC_DML = new F45_DML_GenericDmlMock();
+
+    private static final Product2HelperMock MOCK_PRODUCT_HELPER = new Product2HelperMock();
+	private static final CollaborationGroup TEST_COLLABORATION_GROUP = CollaborationGroupTestDataFactory.create(MOCK_INSERT);
+	
     private static final VisualForceHelperMock MOCK_VISUAL_FORCE_HELPER = new VisualForceHelperMock();
+
 	private static final Product2Extension EXTENSION_UNDER_TEST = new Product2Extension(
-		TEST_STANDARD_CONTROLLER,
+		TEST_STANDARD_CONTROLLER, 
 		MOCK_CHART_HELPER,
 		MOCK_DATABASE_HELPER,
 		MOCK_GENERIC_DML, 
-		MOCK_VISUAL_FORCE_HELPER 
+		MOCK_PRODUCT_HELPER,
+		MOCK_VISUAL_FORCE_HELPER
 	);
 
-	private static final TEST_InsertModeEnum MOCK_INSERT = TEST_InsertModeEnum.MOCK_INSERT;
 	private static final Product2 TEST_PRODUCT = ProductTestDataFactory.create(MOCK_INSERT);
 	private static final List<Product2> TEST_PRODUCT_LIST = new List<Product2>{TEST_PRODUCT};
 
 	private static final PriceBookEntry TEST_PRICEBOOK_ENTRY = PricebookEntryTestDataFactory.create(MOCK_INSERT);
 
-	private static final String DUMMY_ERROR_MESSAGE = 'Save Failed';
+	private static final String DUMMY_ERROR_MESSAGE = 'Save Failed'; 
 
+	@testSetup
+	static void setupTestData (){
+		MOCK_PRODUCT_HELPER.returnedInventoryAnnouncementCollaborationGroup = TEST_COLLABORATION_GROUP;
+	}	
+		
+	
 	@isTest public static void testGetInventoryShouldReturnRemainingProducts() {
 		// Arrange
-		MOCK_CHART_HELPER.returnedChartDataList = new List<ChartHelper.ChartData>();
+		MOCK_CHART_HELPER.returnedProductFamilyDTOList = new List<ProductFamilyDTO>();  
 
 		// Act
-		List<ChartHelper.ChartData> resultChartDataList;
+		List<ProductFamilyDTO> resultProductFamilyDTOList;
 		Test.startTest();
 		System.runAs(TEST_USER) {
-			resultChartDataList = EXTENSION_UNDER_TEST.getInventory();
+			resultProductFamilyDTOList = EXTENSION_UNDER_TEST.getInventory();
 		}
 		Test.stopTest();
 		
 		// Assert
-		System.assertEquals(MOCK_CHART_HELPER.returnedChartDataList, resultChartDataList);
+		System.assertEquals(MOCK_CHART_HELPER.returnedProductFamilyDTOList, resultProductFamilyDTOList);
 	}
 
 	@isTest public static void testGetFamilyOptionsShouldConvertProductFamilyToPicklist() {
 		// Arrange
 		// Nothing to do here
 
-		// Act
+		// Act 
 		List<SelectOption> resultSelectOptionList;
 		Test.startTest();
 		System.runAs(TEST_USER) {

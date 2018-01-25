@@ -9,7 +9,7 @@ public class VisualForceHelperMock extends VisualForceHelper {
     }
 
     public override ApexPages.message addErrorMessage(String message){
-    	this.receivedMessage = message;
+    	this.receivedMessage = message; 
     	return this.returnedMessage;
     }
 }

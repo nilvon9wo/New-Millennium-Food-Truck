@@ -17,7 +17,18 @@ public virtual class ProductSelector {
 			WHERE Id IN :productIdSet
 		];
 	}
-	 
+	
+	public virtual Map<String, Integer> selectRemainingProductQuantityByFamily() { 
+		Map<String, Integer> remainingProductByFamilyMap = new Map<String, Integer>();
+		
+    	for (AggregateResult aggregateResult: this.aggregateRemainingProduct()) {
+    		String family = (String) aggregateResult.get('family');
+    		Integer total = Integer.valueOf(aggregateResult.get('total'));
+    		remainingProductByFamilyMap.put(family, total);
+    	}
+    	return remainingProductByFamilyMap;
+	}
+	
 	public virtual List<AggregateResult> aggregateRemainingProduct() {
 		return [
 			SELECT Family family, SUM(Quantity_Remaining__c) total
