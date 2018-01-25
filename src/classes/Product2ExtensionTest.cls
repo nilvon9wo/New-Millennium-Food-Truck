@@ -64,7 +64,7 @@ public class Product2ExtensionTest {
 		Test.stopTest();
 		
 		// Assert
-		System.assertEquals(Constants.PRODUCT_FAMILY.size() + 1, resultSelectOptionList.size()); 
+		System.assertEquals(Constants.PRODUCT_FAMILY_PICKLIST.size() + 1, resultSelectOptionList.size()); 
 		
 		Map<String, Boolean> hasValueByPicklistLabelMap = new Map<String, Boolean>{
 			Constants.SELECT_ONE => false
@@ -72,7 +72,7 @@ public class Product2ExtensionTest {
 		Map<String, String> valueByByPicklistLabelMap = new Map<String, String>{
 			Constants.SELECT_ONE => Constants.SELECT_ONE
 		};
-		for (Schema.PicklistEntry picklistEntry : Constants.PRODUCT_FAMILY) {
+		for (Schema.PicklistEntry picklistEntry : Constants.PRODUCT_FAMILY_PICKLIST) {
 			valueByByPicklistLabelMap.put(picklistEntry.getLabel(), picklistEntry.getValue());
 			hasValueByPicklistLabelMap.put(picklistEntry.getLabel(), false);
 		} 

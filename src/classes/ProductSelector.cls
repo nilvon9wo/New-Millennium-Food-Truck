@@ -18,15 +18,15 @@ public virtual class ProductSelector {
 		];
 	}
 	
-	public virtual Map<String, Integer> selectRemainingProductQuantityByFamily() { 
-		Map<String, Integer> remainingProductByFamilyMap = new Map<String, Integer>();
+	public virtual List<ProductFamilyDTO> selectRemainingProductQuantityByFamily() {
+		List<ProductFamilyDTO> ProductFamilyDTOList = new List<ProductFamilyDTO>(); 
 		
     	for (AggregateResult aggregateResult: this.aggregateRemainingProduct()) {
     		String family = (String) aggregateResult.get('family');
     		Integer total = Integer.valueOf(aggregateResult.get('total'));
-    		remainingProductByFamilyMap.put(family, total);
+    		ProductFamilyDTOList.add(new ProductFamilyDTO(family, total));
     	}
-    	return remainingProductByFamilyMap;
+    	return ProductFamilyDTOList;
 	}
 	
 	public virtual List<AggregateResult> aggregateRemainingProduct() {

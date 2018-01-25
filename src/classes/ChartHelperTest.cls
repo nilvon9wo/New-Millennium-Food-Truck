@@ -2,16 +2,22 @@
 public class ChartHelperTest {
 	private static final User TEST_USER = TEST_RunAsUserFactory.create(); 
 	
+	private static final ProductSelectorMock MOCK_PRODUCT_SELECTOR = new ProductSelectorMock();
+	private static final ChartHelper HELPER_UNDER_TEST = new ChartHelper(MOCK_PRODUCT_SELECTOR);
+	
 	@isTest public static void testSelectRemainingProductListShouldReturnRemainingProducts() {
 		// Arrange
-		// TODO
+		MOCK_PRODUCT_SELECTOR.returnedProductFamilyDtoList = new List<ProductFamilyDTO>(); 
+		
 		// Act
+		List<ProductFamilyDTO> resultList;
 		Test.startTest();
 		System.runAs(TEST_USER) {
-			// TODO
+			resultList = HELPER_UNDER_TEST.selectRemainingProductList();
 		}
 		Test.stopTest();
+		
 		// Asset
-		// TODO
+		System.assertEquals(MOCK_PRODUCT_SELECTOR.returnedProductFamilyDtoList, resultList);
 	}
 }

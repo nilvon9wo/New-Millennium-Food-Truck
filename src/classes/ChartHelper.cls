@@ -15,11 +15,6 @@ public without sharing virtual class ChartHelper {
     }
     
     public virtual List<ProductFamilyDTO> selectRemainingProductList() {
-    	Map<String, Integer> remainingProductByFamilyMap = this.productSelector.selectRemainingProductQuantityByFamily();
-    	List<ProductFamilyDTO> ProductFamilyDTOList = new List<ProductFamilyDTO>();
-    	for (String family : remainingProductByFamilyMap.keySet()) {
-    		ProductFamilyDTOList.add(new ProductFamilyDTO(family, remainingProductByFamilyMap.get(family)));
-    	}
-    	return ProductFamilyDTOList;
+    	return this.productSelector.selectRemainingProductQuantityByFamily();
     }
 } 

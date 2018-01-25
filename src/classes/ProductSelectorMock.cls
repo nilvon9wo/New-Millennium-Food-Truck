@@ -7,8 +7,8 @@ public class ProductSelectorMock extends ProductSelector {
     	return this.returnedProductMap;
     }
     
-    Map<String, Integer> returnedProductByFamilyMap; 
-	public override Map<String, Integer> selectRemainingProductQuantityByFamily() { 
-		return returnedProductByFamilyMap;
+    public List<ProductFamilyDTO> returnedProductFamilyDtoList; 
+	public override List<ProductFamilyDTO> selectRemainingProductQuantityByFamily() { 
+		return this.returnedProductFamilyDtoList;
 	}
 }
