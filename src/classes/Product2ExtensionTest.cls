@@ -33,7 +33,6 @@ public class Product2ExtensionTest {
 	static void setupTestData (){
 		MOCK_PRODUCT_HELPER.returnedInventoryAnnouncementCollaborationGroup = TEST_COLLABORATION_GROUP;
 	}	
-		
 	
 	@isTest public static void testGetInventoryShouldReturnRemainingProducts() {
 		// Arrange

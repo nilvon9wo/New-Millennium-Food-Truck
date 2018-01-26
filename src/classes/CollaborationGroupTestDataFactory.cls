@@ -1,4 +1,4 @@
- @isTest
+@isTest
 public class CollaborationGroupTestDataFactory { 
     public static final String PREFIX = CollaborationGroup.SObjectType.getDescribe().getKeyPrefix();
     public static final Id EXAMPLE_ID = PREFIX + '3E000003NYTS';

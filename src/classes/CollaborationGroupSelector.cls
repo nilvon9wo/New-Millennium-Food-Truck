@@ -1,5 +1,5 @@
-public class CollaborationGroupSelector {
-    public CollaborationGroup selectByName(String name){
+public virtual class CollaborationGroupSelector {
+    public virtual CollaborationGroup selectByName(String name){
     	return [
 	        SELECT Id
 	        FROM CollaborationGroup
