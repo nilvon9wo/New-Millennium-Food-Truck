@@ -63,7 +63,7 @@ public class TestDataFactory {
      * @name SetupTestData
      * @description Inserts accounts, contacts, Products, PricebookEntries, Orders, and OrderItems.
     **/
-    public static void InsertTestData(Integer cnt){
+    public static void insertTestData(Integer cnt){
     	insert constructCollaborationGroup();
     	
     	List<Product2> productList = constructProducts(cnt); 
@@ -81,7 +81,7 @@ public class TestDataFactory {
     	insert constructOrderItems(cnt, pbes, ords);
     }
     
-    public static void VerifyQuantityOrdered(Product2 originalProduct, Product2 updatedProduct, Integer qtyOrdered) {
+    public static void verifyQuantityOrdered(Product2 originalProduct, Product2 updatedProduct, Integer qtyOrdered) {
     	System.assertEquals(
             originalProduct.Quantity_Ordered__c + qtyOrdered,
             updatedProduct.Quantity_Ordered__c,
