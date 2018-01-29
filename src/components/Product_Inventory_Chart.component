@@ -5,5 +5,5 @@
 		<apex:axis type="Category" position="left" fields="name" title="Produt Family" />
 		<apex:axis type="Numeric" position="bottom" fields="value" title="Quantity Remaining" />
 		<apex:barSeries title="Monthly Sales" orientation="horizontal" axis="left" xField="value" yField="name" />
-	</apex:chart>
+	</apex:chart> 
 </apex:component>

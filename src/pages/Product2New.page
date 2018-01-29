@@ -1,7 +1,7 @@
 <apex:page standardController="Product2" extensions="Product2Extension" >    
     <apex:sectionHeader title="New Product" subtitle="Add Inventory" />
     <apex:pageMessages id="pageMessages" />
-    <apex:form id="form" >
+    <apex:form id="form" > 
         <apex:actionRegion >
             <apex:pageBlock title="Existing Inventory" >
            		<c:Product_Inventory_Chart id="inventoryChart" inventory="{!Inventory}" /> 

@@ -1,6 +1,6 @@
 <apex:page standardController="Order" extensions="OrderExtension" >
     <apex:sectionHeader title="{!$ObjectType.Order.Label} Edit" subtitle="{!IF(Order.Id == null,'New '+$ObjectType.Order.Label,Order.Name)}" />
-    <apex:form id="form" >
+    <apex:form id="form" > 
         <apex:pageMessages id="pageMessages" />
         <apex:pageBlock title="Order Details" mode="Edit">
             <apex:pageBlockButtons >
@@ -20,7 +20,7 @@
                     <apex:pageMessage severity="Info" summary="No Products have been selected" rendered="{!pieData == null}" />
                     <apex:outputPanel rendered="{!pieData != null}" >
                         <apex:chart height="250" width="350" data="{!pieData}" >
-                            <apex:pieSeries dataField="quantity" labelField="name"/>
+                            <apex:pieSeries dataField="value" labelField="name"/>
                             <apex:legend position="right"/>
                         </apex:chart>
                     </apex:outputPanel>
