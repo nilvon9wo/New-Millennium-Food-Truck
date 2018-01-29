@@ -3,8 +3,6 @@ public class OrderExtension_ProductTests {
 	private static final User TEST_USER = TEST_RunAsUserFactory.create(); 
 	
 	private static final TEST_InsertModeEnum MOCK_INSERT = TEST_InsertModeEnum.MOCK_INSERT;
-	private static final TEST_InsertModeEnum NEVER_INSERT = TEST_InsertModeEnum.NEVER_INSERT;
-	
 	private static final Order TEST_ORDER = OrderTestDataFactory.create(MOCK_INSERT);
 	private static final ApexPages.StandardController TEST_STANDARD_CONTROLLER = new ApexPages.StandardController(TEST_ORDER);
 
@@ -231,7 +229,7 @@ public class OrderExtension_ProductTests {
 	@isTest private static void testGetOrderItemProductIdShouldReturnOrderItemPricebookEntryProductIdIfProductIdNotAvailable() {
 		// Arrange
 		OrderItem testOrderItem = createOrderItemWithProductId(null);
-		testOrderItem.Pricebookentry.Product2Id = ProductTestDataFactory.EXAMPLE_ID;
+		testOrderItem.Pricebookentry = createPricebookentryWithProductId(testOrderItem.Pricebookentry, ProductTestDataFactory.EXAMPLE_ID);
 		
 		// Act
 		Id resultId;
@@ -271,10 +269,15 @@ public class OrderExtension_ProductTests {
 	}
 
 	private static OrderItem createOrderItemWithProductId(Id productId) {
-		OrderItem testOrderItem = OrderItemTestDataFactory.create(NEVER_INSERT);
-		Map<String, Object> mappedOrderItem = (Map<String, Object>) JSON.deserializeUntyped(JSON.serialize(testOrderItem));	
+		Map<String, Object> mappedOrderItem = (Map<String, Object>) JSON.deserializeUntyped(JSON.serialize(TEST_ORDER_ITEM));	
 		mappedOrderItem.put('Product2Id', String.valueOf(productId));
 		return (OrderItem) JSON.deserialize(JSON.serialize(mappedOrderItem), OrderItem.class);
+	}
+
+	private static Pricebookentry createPricebookentryWithProductId(Pricebookentry pricebookEntry, Id productId) {
+		Map<String, Object> mappedPricebookentry = (Map<String, Object>) JSON.deserializeUntyped(JSON.serialize(pricebookEntry));	
+		mappedPricebookentry.put('Product2Id', String.valueOf(productId));
+		return (Pricebookentry) JSON.deserialize(JSON.serialize(mappedPricebookentry), SObject.class);
 	}
 
 }
