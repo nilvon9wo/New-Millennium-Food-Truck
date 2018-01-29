@@ -1,7 +1,7 @@
 @isTest
 public class ChartHelperMock extends ChartHelper {
-	public List<ProductFamilyDTO> returnedProductFamilyDTOList;
-    public override List<ProductFamilyDTO> selectRemainingProductList() {
-    	return this.returnedProductFamilyDTOList; 
+	public List<ChartData> returnedChartDataList;
+    public override List<ChartData> selectRemainingProductList() { 
+    	return this.returnedChartDataList; 
     }
-}  
+}

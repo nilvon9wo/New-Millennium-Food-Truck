@@ -1,5 +1,5 @@
 public virtual class ProductSelector {
-	SetHelper setHelper;
+	SetHelper setHelper; 
 	
 	public ProductSelector(SetHelper setHelper) {
 		this.setHelper = setHelper;
@@ -12,21 +12,21 @@ public virtual class ProductSelector {
 	public virtual List<Product2> selectFor(List<PricebookEntry> pricebookEntryList) {
 		Set<Id> productIdSet = this.setHelper.buildIdSetFor(pricebookEntryList, PricebookEntry.Product2Id);
 		return [
-			SELECT Id, Family, Name, Quantity_Remaining__c
+			SELECT Id, Family, Name, Quantity_Remaining__c 
 			FROM Product2
 			WHERE Id IN :productIdSet
 		];
-	}
+	} 
 	
-	public virtual List<ProductFamilyDTO> selectRemainingProductQuantityByFamily() {
-		List<ProductFamilyDTO> ProductFamilyDTOList = new List<ProductFamilyDTO>(); 
+	public virtual List<ChartData> selectRemainingProductQuantityByFamily() {
+		List<ChartData> ChartDataList = new List<ChartData>(); 
 		
     	for (AggregateResult aggregateResult: this.aggregateRemainingProduct()) {
     		String family = (String) aggregateResult.get('family');
     		Integer total = Integer.valueOf(aggregateResult.get('total'));
-    		ProductFamilyDTOList.add(new ProductFamilyDTO(family, total));
+    		ChartDataList.add(new ChartData(family, total));
     	}
-    	return ProductFamilyDTOList;
+    	return ChartDataList;
 	}
 	
 	public virtual List<AggregateResult> aggregateRemainingProduct() {

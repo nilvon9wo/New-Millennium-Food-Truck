@@ -1,10 +1,10 @@
-public class PricebookEntrySelector {
-    public Database.QueryLocator getQueryLocator() {
-    	String selectedFamily = null; 
+public virtual class PricebookEntrySelector {
+    public virtual Database.QueryLocator getQueryLocator() {
+    	String selectedFamily = null;  
 		return this.getQueryLocatorForFamily(selectedFamily); 
-    }
+    } 
 
-    public Database.QueryLocator getQueryLocatorForFamily(String selectedFamily) {
+    public virtual Database.QueryLocator getQueryLocatorForFamily(String selectedFamily) {
         String query = 'SELECT Name, Product2Id, Product2.Family, Product2.Name, Product2.Quantity_Remaining__c, UnitPrice'
                      + ' FROM PricebookEntry'
                      + ' WHERE IsActive = TRUE';

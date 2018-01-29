@@ -8,7 +8,7 @@ public class OrderItemTestDataFactory {
 	
 
     public static Bundle createBundle(
-    		List<OrderItem> templateOrderItemList,  
+    		List<OrderItem> templateOrderItemList,   
     		TEST_InsertModeEnum insertMode,
     		TEST_InsertRelationshipsEnum insertOptionalRelationships
     	) {
@@ -125,6 +125,15 @@ public class OrderItemTestDataFactory {
     	return create(TEST_InsertModeEnum.NEVER_INSERT);
     }
     
+    public static OrderItem createWithNQuantity(Integer n, TEST_InsertModeEnum insertMode) {
+    	List<OrderItem> templateOrderItemList = new List<OrderItem>{new OrderItem(Quantity = n)};
+		return createBundle(templateOrderItemList, insertMode, TEST_InsertRelationshipsEnum.EXCLUDE).orderItemList[0];
+    }
+
+    public static OrderItem createWithNQuantity(Integer n) {
+    	return createWithNQuantity(n, TEST_InsertModeEnum.NEVER_INSERT);
+    }
+    
     public class Bundle {
 		public Bundle(
 			Integer quantity, 
@@ -141,7 +150,7 @@ public class OrderItemTestDataFactory {
 			if (insertOptionalRelationships == TEST_InsertRelationshipsEnum.INCLUDE) {
 				// TODO	
 			}
-		}
+		} 
 		
 		public List<OrderItem> orderItemList;
 		public List<Order> orderList;

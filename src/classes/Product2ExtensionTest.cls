@@ -5,9 +5,9 @@ public class Product2ExtensionTest {
 	
 	private static final ApexPages.StandardController TEST_STANDARD_CONTROLLER = new ApexPages.StandardController(new Product2()); 
 	private static final ChartHelperMock MOCK_CHART_HELPER = new ChartHelperMock(); 
-    private static final DatabaseHelperMock MOCK_DATABASE_HELPER = new DatabaseHelperMock(); 
+    private static final DatabaseHelperMock MOCK_DATABASE_HELPER = new DatabaseHelperMock();  
     private static final F45_DML_GenericDmlMock MOCK_GENERIC_DML = new F45_DML_GenericDmlMock();
-
+ 
     private static final Product2HelperMock MOCK_PRODUCT_HELPER = new Product2HelperMock();
 	private static final CollaborationGroup TEST_COLLABORATION_GROUP = CollaborationGroupTestDataFactory.create(MOCK_INSERT);
 	
@@ -19,7 +19,7 @@ public class Product2ExtensionTest {
 		MOCK_DATABASE_HELPER,
 		MOCK_GENERIC_DML, 
 		MOCK_PRODUCT_HELPER,
-		MOCK_VISUAL_FORCE_HELPER
+		MOCK_VISUAL_FORCE_HELPER 
 	);
 
 	private static final Product2 TEST_PRODUCT = ProductTestDataFactory.create(MOCK_INSERT);
@@ -36,18 +36,18 @@ public class Product2ExtensionTest {
 	
 	@isTest public static void testGetInventoryShouldReturnRemainingProducts() {
 		// Arrange
-		MOCK_CHART_HELPER.returnedProductFamilyDTOList = new List<ProductFamilyDTO>();  
+		MOCK_CHART_HELPER.returnedChartDataList = new List<ChartData>();  
 
 		// Act
-		List<ProductFamilyDTO> resultProductFamilyDTOList;
+		List<ChartData> resultChartDataList;
 		Test.startTest();
 		System.runAs(TEST_USER) {
-			resultProductFamilyDTOList = EXTENSION_UNDER_TEST.getInventory();
+			resultChartDataList = EXTENSION_UNDER_TEST.getInventory();
 		}
 		Test.stopTest();
 		
 		// Assert
-		System.assertEquals(MOCK_CHART_HELPER.returnedProductFamilyDTOList, resultProductFamilyDTOList);
+		System.assertEquals(MOCK_CHART_HELPER.returnedChartDataList, resultChartDataList);
 	}
 
 	@isTest public static void testGetFamilyOptionsShouldConvertProductFamilyToPicklist() {

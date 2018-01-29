@@ -5,20 +5,20 @@
 public class OrderExtension {
 	ApexPages.StandardController standardController;
     DatabaseHelper databaseHelper;
-    F45_DML_GenericDml genericDml;
+    F45_DML_GenericDml genericDml; 
     OrderSelector orderSelector;
     PricebookEntrySelector pricebookEntrySelector;
     Product2Helper product2Helper;
     ProductSelector productSelector;
     VisualForceHelper visualForceHelper;
-
+ 
     public List<OrderItem> orderItemList {get;set;}
     public Order orderRecord {get;set;}
-    public List<ProductFamilyDTO> pieData {get;set;} 
+    public List<ChartData> pieData {get;set;} 
     public Map<Id,OrderItem> orderItemByProductIdMap;
     public Decimal total {get;set;}
     public String selectedFamily {get;set;}
-
+ 
     private static final Boolean SAVE_SUCCESS = true; 
     private static final Boolean SAVE_FAILURE = false; 
 
@@ -44,6 +44,7 @@ public class OrderExtension {
     	this.standardController = standardController;
     	this.visualForceHelper = visualForceHelper;
     	
+
     	this.orderItemByProductIdMap = new Map<Id,OrderItem>();
     	this.setOrderRecord();
         this.refreshPieChart(this.orderRecord.OrderItems);
@@ -223,6 +224,17 @@ public class OrderExtension {
     	}
     }
 	
+    public void save(){
+        System.Savepoint savepoint = this.databaseHelper.setSavepoint();
+        
+        if (
+        	!this.saveOrderRecord()
+    		|| !this.saveOrderItems()
+    	) {
+       		this.onDmlFailure(savepoint);
+        }
+    }
+	
 	@testVisible
 	private Boolean saveOrderItems() {
     	Map<DmlOperation, List<OrderItem>> orderItemListByDmlOperationMap = this.buildOrderItemListByDmlOperationMap();
@@ -255,7 +267,53 @@ public class OrderExtension {
        	return SAVE_SUCCESS;
 	}
 	
+	@testVisible
+	private void onDmlFailure(System.Savepoint savepoint) {
+		this.databaseHelper.rollback(savepoint);
+        this.visualForceHelper.addInfoMessage(Constants.ERROR_MESSAGE);
+	}
+	
 	// Product -----------------------------------------------------------------------------------------------------------------------
+
+    public void selectFamily(){
+        this.resetStandardSetController();
+        this.populateOrderItemList();
+    }
+
+    public List<SelectOption> getFamilyOptions(){
+    	return this.product2Helper.getFamilyOptions();
+    }
+
+    public void onFieldChange(){
+        for (OrderItem orderItem : this.orderItemList) {
+            this.orderItemByProductIdMap.put(this.getOrderItemProductId(orderItem), orderItem);
+        }
+        this.refreshPieChart(this.orderItemList);
+    }
+
+	@testVisible
+    private List<ChartData> refreshPieChart(List<OrderItem> orderItemList) {
+        this.pieData = null;
+        this.total = 0;
+        
+        for (OrderItem orderItem : orderItemList) {
+        	this.addToPieChart(orderItem);
+        }
+        return this.pieData;
+    } 
+    
+	@testVisible
+    private List<ChartData> addToPieChart(OrderItem orderItem){
+        this.orderItemByProductIdMap.put(this.getOrderItemProductId(orderItem), orderItem);
+        if (orderItem.Quantity > 0) {
+            if (null == this.pieData) {
+                this.pieData = new List<ChartData>();
+            }
+            this.pieData.add(new ChartData(orderItem.PricebookEntry.Product2.Name, orderItem.Quantity * orderItem.UnitPrice));
+            this.total += orderItem.UnitPrice * orderItem.Quantity;
+        }
+        return this.pieData; 
+    }
 
 	@testVisible
     private Id getOrderItemProductId (OrderItem orderItem) {
@@ -270,64 +328,5 @@ public class OrderExtension {
 		return (productId != null)
 			? productId
 			: (orderItem.Pricebookentry != null) ? orderItem.Pricebookentry.Product2Id : null;    	
-    }
-
-    public List<SelectOption> getFamilyOptions(){
-    	return this.product2Helper.getFamilyOptions();
-    }
-
-    public void selectFamily(){
-        this.resetStandardSetController();
-        this.populateOrderItemList();
-    }
-
-	@testVisible
-    private List<ProductFamilyDTO> refreshPieChart(List<OrderItem> orderItemList) {
-        this.pieData = null;
-        this.total = 0;
-        
-        for (OrderItem orderItem : this.orderRecord.OrderItems) {
-        	this.addToPieChart(orderItem);
-        }
-        return this.pieData;
-    } 
-    
-	@testVisible
-    private List<ProductFamilyDTO> addToPieChart(OrderItem orderItem){
-        this.orderItemByProductIdMap.put(this.getOrderItemProductId(orderItem), orderItem);
-        if (orderItem.Quantity > 0) {
-            if (null == this.pieData) {
-                this.pieData = new List<ProductFamilyDTO>();
-            }
-            this.pieData.add(new ProductFamilyDTO(orderItem.PricebookEntry.Product2.Name, orderItem.Quantity * orderItem.UnitPrice));
-            this.total += orderItem.UnitPrice * orderItem.Quantity;
-        }
-        return this.pieData; 
-    }
-    
-    // Miscellaneous  -----------------------------------------------------------------------------------------------------------
-
-    public void save(){
-        System.Savepoint savepoint = this.databaseHelper.setSavepoint();
-        
-        if (
-        	!this.saveOrderRecord()
-    		|| !this.saveOrderItems()
-    	) {
-       		this.onDmlFailure(savepoint);
-        }
-    }
-	
-	@testVisible
-	private void onDmlFailure(System.Savepoint savepoint) {
-		this.databaseHelper.rollback(savepoint);
-        this.visualForceHelper.addInfoMessage(Constants.ERROR_MESSAGE);
-	}
-
-    public void onFieldChange(){
-        for (OrderItem orderItem : this.orderItemList) {
-            this.orderItemByProductIdMap.put(this.getOrderItemProductId(orderItem), orderItem);
-        }
-        this.refreshPieChart(this.orderItemList);
     }
 }

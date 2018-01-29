@@ -5,7 +5,7 @@ public class Product2Extension {
     F45_DML_GenericDml genericDml;
     Product2Helper product2Helper;
 	VisualForceHelper visualForceHelper;
-   
+    
     public Product2Extension(
     		ApexPages.StandardController controller,
     		ChartHelper chartHelper, 
@@ -15,7 +15,7 @@ public class Product2Extension {
     		VisualForceHelper visualForceHelper
     	) { 
     	this.controller = controller;
-    	this.chartHelper = chartHelper;
+    	this.chartHelper = chartHelper; 
         this.databaseHelper = databaseHelper;
         this.genericDml = genericDml;
         this.product2Helper = product2Helper;
@@ -38,7 +38,7 @@ public class Product2Extension {
 
     public List<ProductWrapper> productsToInsert {get;set;}
  
-    public List<ProductFamilyDTO> getInventory(){ 
+    public List<ChartData> getInventory(){ 
         return this.chartHelper.selectRemainingProductList(); 
     }
      
