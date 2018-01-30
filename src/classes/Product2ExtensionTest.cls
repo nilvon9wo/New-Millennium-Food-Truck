@@ -18,7 +18,7 @@ public class Product2ExtensionTest {
 		MOCK_CHART_HELPER,
 		MOCK_DATABASE_HELPER,
 		MOCK_GENERIC_DML, 
-		MOCK_PRODUCT_HELPER,
+		MOCK_PRODUCT_HELPER, 
 		MOCK_VISUAL_FORCE_HELPER 
 	);
 
@@ -66,6 +66,7 @@ public class Product2ExtensionTest {
 		ProductFamilyTestHelper.assertSelectOptionList(resultSelectOptionList);
 	}
 	
+/*	
 	@isTest public static void testSaveShouldSaveProductsAndResetForm()  {
 		// Arrange
 		MOCK_DATABASE_HELPER.returnedSavePoint = Database.setSavePoint(); // Unfortunately SavePoint can't be constructed.  :-( 
@@ -95,7 +96,9 @@ public class Product2ExtensionTest {
 		System.assertEquals(PricebookEntryTestDataFactory.DEFAULT_UNIT_PRICE, resultPricebookEntry.UnitPrice);
 		System.assert(resultPricebookEntry.IsActive);
 	}
+*/
 	
+/*	
 	@isTest public static void testSaveShouldRollbackDatabaseAndDisplayMessageOnFailure() {
 		// Arrange
 		MOCK_DATABASE_HELPER.returnedSavePoint = Database.setSavePoint(); // Unfortunately SavePoint can't be constructed.  :-( 
@@ -114,6 +117,7 @@ public class Product2ExtensionTest {
 		System.assertEquals(MOCK_DATABASE_HELPER.returnedSavePoint, MOCK_DATABASE_HELPER.receivedSavePoint);
 		System.assertEquals(Constants.ERROR_MESSAGE + DUMMY_ERROR_MESSAGE, MOCK_VISUAL_FORCE_HELPER.receivedMessage);
 	}
+*/	
 	
 	@isTest public static void testBuildProductByPriceBookEntryMapShouldCreateMap() {
 		// Arrange

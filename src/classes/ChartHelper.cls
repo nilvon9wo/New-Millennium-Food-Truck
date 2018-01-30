@@ -1,6 +1,6 @@
 public without sharing virtual class ChartHelper {
 	ProductSelector productSelector;
-	
+	 
 	public ChartHelper(ProductSelector productSelector) {
 		this.productSelector = productSelector;
 	}
@@ -10,11 +10,11 @@ public without sharing virtual class ChartHelper {
 	}
  
 	@AuraEnabled
-    public static List<ChartData> getInventory(){
+    public static List<ChartHelper.ChartData> getInventory(){
     	return (new ChartHelper()).selectRemainingProductList(); 
     }
     
-    public virtual List<ChartData> selectRemainingProductList() {
+    public virtual List<ChartHelper.ChartData> selectRemainingProductList() {
     	return this.productSelector.selectRemainingProductQuantityByFamily();
     }
      

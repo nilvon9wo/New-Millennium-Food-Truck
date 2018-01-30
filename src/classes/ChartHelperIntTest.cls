@@ -1,6 +1,6 @@
 @isTest
 public class ChartHelperIntTest {
-	private static final User TEST_USER = TEST_RunAsUserFactory.create(); 
+	private static final User TEST_USER = TEST_RunAsUserFactory.create();  
 	
 	@isTest public static void testGetInventoryShouldReturnRemainingProducts() { 
 		// Arrange
