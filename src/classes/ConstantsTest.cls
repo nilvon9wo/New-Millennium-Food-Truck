@@ -30,7 +30,7 @@ public class ConstantsTest {
 		List<Schema.PicklistEntry> resultList;
 		Test.startTest();
 		System.runAs(TEST_USER) {
-			resultList = Constants.PRODUCT_FAMILY_PICKLIST;
+			resultList = Constants.PRODUCT_FAMILY;
 		}
 		Test.stopTest();
 		

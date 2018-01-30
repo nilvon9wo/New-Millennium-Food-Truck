@@ -7,10 +7,10 @@ public class ChartHelperTest {
 	
 	@isTest public static void testSelectRemainingProductListShouldReturnRemainingProducts() {
 		// Arrange
-		MOCK_PRODUCT_SELECTOR.returnedChartDataList = new List<ChartData>(); 
+		MOCK_PRODUCT_SELECTOR.returnedChartDataList = new List<ChartHelper.ChartData>(); 
 		
 		// Act
-		List<ChartData> resultList;
+		List<ChartHelper.ChartData> resultList;
 		Test.startTest();
 		System.runAs(TEST_USER) {
 			resultList = HELPER_UNDER_TEST.selectRemainingProductList();

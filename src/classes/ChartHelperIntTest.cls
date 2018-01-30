@@ -7,7 +7,7 @@ public class ChartHelperIntTest {
 		Product2 testProduct = ProductTestDataFactory.create(TEST_InsertModeEnum.INSERT_NOW);
 		
 		// Act
-		List<ChartData> resultList;
+		List<ChartHelper.ChartData> resultList;
 		Test.startTest();
 		System.runAs(TEST_USER) {
 			resultList = ChartHelper.getInventory();
@@ -17,7 +17,7 @@ public class ChartHelperIntTest {
 		// Asset
 		System.assertEquals(1, resultList.size());
 		
-		ChartData dto = resultList[0];
+		ChartHelper.ChartData dto = resultList[0];
 		System.assertEquals(testProduct.Family, dto.name);
 		System.assertEquals(ProductTestDataFactory.DEFAULT_INITIAL_INVENTORY, dto.value);
 	}	 

@@ -26,7 +26,7 @@ public class Constants {
 	
 	public static final Integer DEFAULT_ROWS = 5;
 
-	public static final List<Schema.PicklistEntry> PRODUCT_FAMILY_PICKLIST = Product2.Family.getDescribe().getPicklistValues();
+	public static final List<Schema.PicklistEntry> PRODUCT_FAMILY = Product2.Family.getDescribe().getPicklistValues();
 
 	// Use of Test.isRunningTest is a shitty solution.
 	// This constant does not belong here; its presence complicates dependency injection and therefore mocking.	

@@ -38,37 +38,55 @@ public class Product2Extension {
 
     public List<ProductWrapper> productsToInsert {get;set;}
  
-    public List<ChartData> getInventory(){ 
+    public List<ChartHelper.ChartData> getInventory(){ 
         return this.chartHelper.selectRemainingProductList(); 
-    }
+    } 
      
-    public List<SelectOption> getFamilyOptions() {
-    	return this.product2Helper.getFamilyOptions();
-    }
+    public List<SelectOption> getFamilyOptions() {		      
+     	List<SelectOption> optionList = new List<SelectOption>();		 
+     	optionList.add(new SelectOption(Constants.SELECT_ONE, Constants.SELECT_ONE));		
+     	for (Schema.PicklistEntry picklistEntry : Constants.PRODUCT_FAMILY) {		 
+     		optionList.add(new SelectOption(picklistEntry.getLabel(), picklistEntry.getValue()));		
+     	}		
+     	return optionList;		
+      }
 
     public PageReference save() { 
-    	SavePoint savePoint = this.databaseHelper.setSavePoint();
-    	Map<PriceBookEntry, Product2> productByPriceBookEntryMap;
-    	String errorMessage;
-    	try {
-    		productByPriceBookEntryMap = this.buildProductByPriceBookEntryMap();
-    	}
-    	catch (Product2ExtensionException ex) {
-    		errorMessage = ex.getMessage();
-    	}
-    	if (String.isBlank(errorMessage)) {
-    		errorMessage = this.savePriceBookEntryList(productByPriceBookEntryMap);
-    	}
+ Savepoint sp = Database.setSavepoint();
+ try {
+     List<Product2> products = new List<Product2>();
+     List<PricebookEntry> entries = new List<PricebookEntry>();
+     
+     for (ProductWrapper wrp : productsToInsert){
+         if(null!=wrp.productRecord && null!=wrp.pricebookEntryRecord){
+             
+             if(null!=wrp.productRecord.Name && null!=wrp.productRecord.Family && constants.SELECT_ONE!=wrp.productRecord.Family
+                && null!=wrp.productRecord.Initial_Inventory__c && null!=wrp.pricebookEntryRecord.UnitPrice){
+                 products.add(wrp.productRecord);
+                 PricebookEntry entry=wrp.pricebookEntryRecord;
+                 entry.IsActive=true;
+                 entry.Pricebook2Id=constants.STANDARD_PRICEBOOK_ID;
+                 entries.add(entry);   
+             }
+         }
+     }
 
-    	if (!String.isBlank(errorMessage)) {
-    		this.databaseHelper.rollback(savePoint);
-    		visualForceHelper.addErrorMessage(Constants.ERROR_MESSAGE + errorMessage);
-    	} else {
-    		resetForm();
-    	}
-    	
-        return null;
-    }
+     insert products;
+     
+     for (integer itr=0; itr<entries.size();itr++){
+         entries[itr].Product2Id=products[itr].id;
+     }
+     insert entries;
+     //If successful clear the list and display an informational message
+     apexPages.addMessage(new ApexPages.message(ApexPages.Severity.INFO,productsToInsert.size()+' Inserted'));
+     productsToInsert.clear();   //Do not remove
+     addRows();  //Do not remove
+ } catch (Exception e){
+ 			Database.rollback(sp);
+     apexPages.addMessage(new ApexPages.message(ApexPages.Severity.ERROR,constants.ERROR_MESSAGE));
+ }
+ return null;
+     }
     
     @testVisible
     private Map<PriceBookEntry, Product2> buildProductByPriceBookEntryMap() {

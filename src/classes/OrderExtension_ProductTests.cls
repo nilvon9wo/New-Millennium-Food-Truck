@@ -15,19 +15,19 @@ public class OrderExtension_ProductTests {
 	private static final ApexPages.StandardController TEST_STANDARD_CONTROLLER = new ApexPages.StandardController(TEST_ORDER);
 
 	private static final DatabaseHelperMock MOCK_DATABASE_HELPER = new DatabaseHelperMock();
-	private static final F45_DML_GenericDmlMock MOCK_GENERIC_DML = new F45_DML_GenericDmlMock();
+	private static final F45_DML_GenericDmlMock MOCK_GENERIC_DML = new F45_DML_GenericDmlMock(); 
 	private static final OrderSelectorMock MOCK_ORDER_SELECTOR = createMockOrderSelector(); 
 	private static final PricebookEntrySelectorMock MOCK_PRICEBOOK_ENTRY_SELECTOR = createMockPricebookEntrySelector();
 	private static final Product2HelperMock MOCK_PRODUCT_HELPER = new Product2HelperMock(); 
 	private static final ProductSelectorMock MOCK_PRODUCT_SELECTOR = createMockProductSelector();
 	private static final VisualForceHelperMock MOCK_VISUALFORCE_HELPER = new VisualForceHelperMock();
     	 
-	private static final OrderExtension EXTENSION_UNDER_TEST = new OrderExtension( 
+	private static final OrderExtension EXTENSION_UNDER_TEST = new OrderExtension(  
 		TEST_STANDARD_CONTROLLER,
 		MOCK_DATABASE_HELPER, 
 		MOCK_GENERIC_DML,
 		MOCK_ORDER_SELECTOR,
-		MOCK_PRICEBOOK_ENTRY_SELECTOR,	
+		MOCK_PRICEBOOK_ENTRY_SELECTOR,	 
 		MOCK_PRODUCT_HELPER, 
 		MOCK_PRODUCT_SELECTOR,
 		MOCK_VISUALFORCE_HELPER	
@@ -47,7 +47,7 @@ public class OrderExtension_ProductTests {
 		Id testProductId = ProductTestDataFactory.EXAMPLE_ID; 
 		OrderItem testOrderItem = createOrderItemWithProductId(testProductId);
 		EXTENSION_UNDER_TEST.orderItemList = new List<OrderItem>{testOrderItem};
-		EXTENSION_UNDER_TEST.orderItemByProductIdMap = new Map<Id,OrderItem>();
+		EXTENSION_UNDER_TEST.orderItemMap = new Map<Id,OrderItem>();
 
 		// Act 
 		Test.startTest();
@@ -57,8 +57,8 @@ public class OrderExtension_ProductTests {
 		Test.stopTest();
 		
 		// Assert
-		System.assertEquals(1, EXTENSION_UNDER_TEST.orderItemByProductIdMap.size());
-		System.assertEquals(testOrderItem, EXTENSION_UNDER_TEST.orderItemByProductIdMap.get(testProductId));
+		System.assertEquals(1, EXTENSION_UNDER_TEST.orderItemMap.size());
+		System.assertEquals(testOrderItem, EXTENSION_UNDER_TEST.orderItemMap.get(testProductId));
 	}
 	
 	@isTest private static void testPreserveValuesShouldNotTranscribeOrdersWithoutProductId() {
@@ -67,7 +67,7 @@ public class OrderExtension_ProductTests {
 		OrderItem testOrderItem = createOrderItemWithProductId(testProductId);
 		testOrderItem.Pricebookentry = null;
 		EXTENSION_UNDER_TEST.orderItemList = new List<OrderItem>{testOrderItem};
-		EXTENSION_UNDER_TEST.orderItemByProductIdMap = new Map<Id,OrderItem>();
+		EXTENSION_UNDER_TEST.orderItemMap = new Map<Id,OrderItem>();
 
 		// Act 
 		Test.startTest();
@@ -77,7 +77,7 @@ public class OrderExtension_ProductTests {
 		Test.stopTest();
 		
 		// Assert
-		System.assertEquals(0, EXTENSION_UNDER_TEST.orderItemByProductIdMap.size());
+		System.assertEquals(0, EXTENSION_UNDER_TEST.orderItemMap.size());
 	}
 
 
@@ -96,10 +96,10 @@ public class OrderExtension_ProductTests {
 		Test.stopTest();
 		
 		// Assert
-		List<ChartData> resultList = EXTENSION_UNDER_TEST.pieData;
+		List<ChartHelper.ChartData> resultList = EXTENSION_UNDER_TEST.pieData;
 		System.assertEquals(1, resultList.size());
 		
-		ChartData resultDto = resultList[0];
+		ChartHelper.ChartData resultDto = resultList[0];
 		System.assertEquals(TEST_ORDER_ITEM.PricebookEntry.Product2.Name, resultDto.name);
 		Decimal expectedItemValue = TEST_ORDER_ITEM.Quantity * OrderItemTestDataFactory.DEFAULT_UNIT_PRICE; 
 		System.assertEquals(expectedItemValue, resultDto.value);
@@ -110,13 +110,13 @@ public class OrderExtension_ProductTests {
 
 	@isTest private static void testRefreshPieChartShouldAddOrderItemRecordsToPieChart() {
 		// Arrange
-		EXTENSION_UNDER_TEST.orderItemByProductIdMap = new Map<Id,OrderItem>{
+		EXTENSION_UNDER_TEST.orderItemMap = new Map<Id,OrderItem>{
 			TEST_ORDER_ITEM.PriceBookEntry.Product2Id => TEST_ORDER_ITEM
 		};
 		TEST_ORDER_ITEM.Quantity = 2;
 		
 		// Act
-		List<ChartData> resultList;
+		List<ChartHelper.ChartData> resultList;
 		Test.startTest();
 		System.runAs(TEST_USER) {
 			resultList = EXTENSION_UNDER_TEST.refreshPieChart(TEST_ORDER_ITEM_LIST);
@@ -126,7 +126,7 @@ public class OrderExtension_ProductTests {
 		// Assert
 		System.assertEquals(1, resultList.size());
 		
-		ChartData resultDto = resultList[0];
+		ChartHelper.ChartData resultDto = resultList[0];
 		System.assertEquals(TEST_ORDER_ITEM.PricebookEntry.Product2.Name, resultDto.name);
 		Decimal expectedItemValue = TEST_ORDER_ITEM.Quantity * OrderItemTestDataFactory.DEFAULT_UNIT_PRICE; 
 		System.assertEquals(expectedItemValue, resultDto.value);
@@ -139,7 +139,7 @@ public class OrderExtension_ProductTests {
 	
 	@isTest private static void testAddToPieChartShouldAddOrderItemRecordToPieChart() {
 		// Arrange
-		EXTENSION_UNDER_TEST.orderItemByProductIdMap = new Map<Id,OrderItem>{
+		EXTENSION_UNDER_TEST.orderItemMap = new Map<Id,OrderItem>{
 			TEST_ORDER_ITEM.PriceBookEntry.Product2Id => TEST_ORDER_ITEM
 		};
 		EXTENSION_UNDER_TEST.total = 0;
@@ -147,7 +147,7 @@ public class OrderExtension_ProductTests {
 		TEST_ORDER_ITEM.Quantity = 2;
 		
 		// Act
-		List<ChartData> resultList;
+		List<ChartHelper.ChartData> resultList;
 		Test.startTest();
 		System.runAs(TEST_USER) {
 			resultList = EXTENSION_UNDER_TEST.addToPieChart(TEST_ORDER_ITEM);
@@ -157,7 +157,7 @@ public class OrderExtension_ProductTests {
 		// Assert
 		System.assertEquals(1, resultList.size());
 		
-		ChartData resultDto = resultList[0];
+		ChartHelper.ChartData resultDto = resultList[0];
 		System.assertEquals(TEST_ORDER_ITEM.PricebookEntry.Product2.Name, resultDto.name);
 		Decimal expectedItemValue = TEST_ORDER_ITEM.Quantity * OrderItemTestDataFactory.DEFAULT_UNIT_PRICE; 
 		System.assertEquals(expectedItemValue, resultDto.value);
@@ -168,16 +168,16 @@ public class OrderExtension_ProductTests {
 	
 	@isTest private static void testAddToPieChartShouldNotAddRecordsWithoutQuantity() {
 		// Arrange
-		EXTENSION_UNDER_TEST.orderItemByProductIdMap = new Map<Id,OrderItem>{
+		EXTENSION_UNDER_TEST.orderItemMap = new Map<Id,OrderItem>{
 			TEST_ORDER_ITEM.PriceBookEntry.Product2Id => TEST_ORDER_ITEM
 		};
 		EXTENSION_UNDER_TEST.total = 0;
-		EXTENSION_UNDER_TEST.pieData = new List<ChartData>();
+		EXTENSION_UNDER_TEST.pieData = new List<ChartHelper.ChartData>();
 
 		TEST_ORDER_ITEM.Quantity = 0;
 		
 		// Act
-		List<ChartData> resultList;
+		List<ChartHelper.ChartData> resultList;
 		Test.startTest();
 		System.runAs(TEST_USER) {
 			resultList = EXTENSION_UNDER_TEST.addToPieChart(TEST_ORDER_ITEM);
@@ -192,7 +192,7 @@ public class OrderExtension_ProductTests {
 
 	@isTest private static void testAddToPieChartShouldReturnNullIfPieChartHasNoData() {
 		// Arrange
-		EXTENSION_UNDER_TEST.orderItemByProductIdMap = new Map<Id,OrderItem>{
+		EXTENSION_UNDER_TEST.orderItemMap = new Map<Id,OrderItem>{
 			TEST_ORDER_ITEM.PriceBookEntry.Product2Id => TEST_ORDER_ITEM
 		};
 		EXTENSION_UNDER_TEST.total = 0;
@@ -201,7 +201,7 @@ public class OrderExtension_ProductTests {
 		TEST_ORDER_ITEM.Quantity = 0;
 		
 		// Act
-		List<ChartData> resultList;
+		List<ChartHelper.ChartData> resultList;
 		Test.startTest();
 		System.runAs(TEST_USER) {
 			resultList = EXTENSION_UNDER_TEST.addToPieChart(TEST_ORDER_ITEM);

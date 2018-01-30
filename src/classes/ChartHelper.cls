@@ -16,5 +16,15 @@ public without sharing virtual class ChartHelper {
     
     public virtual List<ChartData> selectRemainingProductList() {
     	return this.productSelector.selectRemainingProductQuantityByFamily();
-    } 
+    }
+     
+    public class ChartData {
+		public String name {get;set;}
+	    public Decimal value {get;set;}
+	
+	    public ChartData(String name, Decimal value) {
+	    	this.name = name;
+	        this.value = value;
+	   	}
+    }   
 }

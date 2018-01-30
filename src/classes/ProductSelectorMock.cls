@@ -5,7 +5,7 @@ public class ProductSelectorMock extends ProductSelector {
 	public override List<Product2> selectFor(List<PricebookEntry> pricebookEntryList) {
 		this.receivedPricebookEntryList = pricebookEntryList;
 		return this.returnedProductList;
-	} 
+	}  
 
     public Map<Id, Product2> receivedProductMap; 
     public Map<Id, Product2> returnedProductMap;
@@ -14,8 +14,8 @@ public class ProductSelectorMock extends ProductSelector {
     	return this.returnedProductMap;
     }
      
-    public List<ChartData> returnedChartDataList;  
-	public override List<ChartData> selectRemainingProductQuantityByFamily() { 
+    public List<ChartHelper.ChartData> returnedChartDataList;  
+	public override List<ChartHelper.ChartData> selectRemainingProductQuantityByFamily() { 
 		return this.returnedChartDataList;
 	} 
 }

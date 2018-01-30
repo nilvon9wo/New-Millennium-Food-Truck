@@ -15,16 +15,16 @@ public class OrderExtension_OrderItemsTests {
 	private static final ApexPages.StandardController TEST_STANDARD_CONTROLLER = new ApexPages.StandardController(TEST_ORDER);
 
 	private static final DatabaseHelperMock MOCK_DATABASE_HELPER = new DatabaseHelperMock();
-	private static final F45_DML_GenericDmlMock MOCK_GENERIC_DML = new F45_DML_GenericDmlMock();
-	private static final OrderSelectorMock MOCK_ORDER_SELECTOR = createMockOrderSelector(); 
+	private static final F45_DML_GenericDmlMock MOCK_GENERIC_DML = new F45_DML_GenericDmlMock();  
+	private static final OrderSelectorMock MOCK_ORDER_SELECTOR = createMockOrderSelector();  
 	private static final PricebookEntrySelectorMock MOCK_PRICEBOOK_ENTRY_SELECTOR = createMockPricebookEntrySelector();
 	private static final Product2HelperMock MOCK_PRODUCT_HELPER = new Product2HelperMock(); 
 	private static final ProductSelectorMock MOCK_PRODUCT_SELECTOR = createMockProductSelector();
 	private static final VisualForceHelperMock MOCK_VISUALFORCE_HELPER = new VisualForceHelperMock();
     	 
-	private static final OrderExtension EXTENSION_UNDER_TEST = new OrderExtension( 
+	private static final OrderExtension EXTENSION_UNDER_TEST = new OrderExtension(  
 		TEST_STANDARD_CONTROLLER,
-		MOCK_DATABASE_HELPER, 
+		MOCK_DATABASE_HELPER,  
 		MOCK_GENERIC_DML,
 		MOCK_ORDER_SELECTOR,
 		MOCK_PRICEBOOK_ENTRY_SELECTOR,	
@@ -52,9 +52,9 @@ public class OrderExtension_OrderItemsTests {
 
 		OrderItem orderItemToUpsert = TEST_ORDER_ITEM_LIST[0];
 		OrderItem orderItemToDelete = TEST_ORDER_ITEM_LIST[1]; 
-		EXTENSION_UNDER_TEST.orderItemByProductIdMap = prepareOrderItemByProductIdMap(orderItemToUpsert, orderItemToDelete);
+		EXTENSION_UNDER_TEST.orderItemMap = prepareOrderItemByProductIdMap(orderItemToUpsert, orderItemToDelete);
 		
-		SavePoint testSavePoint = Database.setSavePoint(); 
+		SavePoint testSavePoint = Database.setSavePoint();  
 		MOCK_DATABASE_HELPER.returnedSavePoint = testSavePoint;
 
 		// Act 
@@ -129,9 +129,9 @@ public class OrderExtension_OrderItemsTests {
 
 		OrderItem orderItemToUpsert = TEST_ORDER_ITEM_LIST[0];
 		OrderItem orderItemToDelete = TEST_ORDER_ITEM_LIST[1]; 
-		EXTENSION_UNDER_TEST.orderItemByProductIdMap = prepareOrderItemByProductIdMap(orderItemToUpsert, orderItemToDelete);
+		EXTENSION_UNDER_TEST.orderItemMap = prepareOrderItemByProductIdMap(orderItemToUpsert, orderItemToDelete);
 		
-		SavePoint testSavePoint = Database.setSavePoint(); 
+		SavePoint testSavePoint = Database.setSavePoint();  
 		MOCK_DATABASE_HELPER.returnedSavePoint = testSavePoint;
 
 		// Act 
@@ -175,10 +175,10 @@ public class OrderExtension_OrderItemsTests {
 		
 		OrderItem orderItemToUpsert = TEST_ORDER_ITEM_LIST[0];
 		OrderItem orderItemToDelete = TEST_ORDER_ITEM_LIST[1]; 
-		EXTENSION_UNDER_TEST.orderItemByProductIdMap = prepareOrderItemByProductIdMap(orderItemToUpsert, orderItemToDelete);
+		EXTENSION_UNDER_TEST.orderItemMap = prepareOrderItemByProductIdMap(orderItemToUpsert, orderItemToDelete);
 
 		// Act 
-		Boolean result;
+		Boolean result; 
 		Test.startTest();
 		System.runAs(TEST_USER) {
 			result = EXTENSION_UNDER_TEST.saveOrderItems();
@@ -203,11 +203,11 @@ public class OrderExtension_OrderItemsTests {
 		
 		OrderItem orderItemToUpsert = TEST_ORDER_ITEM_LIST[0];
 		OrderItem orderItemToDelete = TEST_ORDER_ITEM_LIST[1]; 
-		EXTENSION_UNDER_TEST.orderItemByProductIdMap = prepareOrderItemByProductIdMap(orderItemToUpsert, orderItemToDelete);
+		EXTENSION_UNDER_TEST.orderItemMap = prepareOrderItemByProductIdMap(orderItemToUpsert, orderItemToDelete);
 
 		// Act 
 		Boolean result;
-		Test.startTest();
+		Test.startTest(); 
 		System.runAs(TEST_USER) {
 			result = EXTENSION_UNDER_TEST.saveOrderItems();
 		}
@@ -224,9 +224,9 @@ public class OrderExtension_OrderItemsTests {
 		
 		OrderItem orderItemToUpsert = TEST_ORDER_ITEM_LIST[0];
 		OrderItem orderItemToDelete = TEST_ORDER_ITEM_LIST[1]; 
-		EXTENSION_UNDER_TEST.orderItemByProductIdMap = prepareOrderItemByProductIdMap(orderItemToUpsert, orderItemToDelete);
+		EXTENSION_UNDER_TEST.orderItemMap = prepareOrderItemByProductIdMap(orderItemToUpsert, orderItemToDelete);
 
-		// Act 
+		// Act  
 		Boolean result;
 		Test.startTest();
 		System.runAs(TEST_USER) {
@@ -244,7 +244,7 @@ public class OrderExtension_OrderItemsTests {
 		// Arrange
 		OrderItem orderItemToUpsert = TEST_ORDER_ITEM_LIST[0];
 		OrderItem orderItemToDelete = TEST_ORDER_ITEM_LIST[1]; 
-		EXTENSION_UNDER_TEST.orderItemByProductIdMap = prepareOrderItemByProductIdMap(orderItemToUpsert, orderItemToDelete);
+		EXTENSION_UNDER_TEST.orderItemMap = prepareOrderItemByProductIdMap(orderItemToUpsert, orderItemToDelete);
 
 		// Act 
 		Map<OrderExtension.DmlOperation, List<OrderItem>> resultOrderItemListByDmlOperationMap;
@@ -252,7 +252,7 @@ public class OrderExtension_OrderItemsTests {
 		System.runAs(TEST_USER) {
 			resultOrderItemListByDmlOperationMap = EXTENSION_UNDER_TEST.buildOrderItemListByDmlOperationMap();
 		}
-		Test.stopTest();
+		Test.stopTest(); 
 		
 		// Assert
 		System.assertEquals(2, resultOrderItemListByDmlOperationMap.size());

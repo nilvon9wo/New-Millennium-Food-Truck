@@ -65,7 +65,7 @@ public class OrderExtension_StandardSetCtrlIntTests {
 		System.assertEquals(1, result);
 		System.assert(!extensionUnderTest.standardSetController.getHasPrevious());
 		System.assert(extensionUnderTest.standardSetController.getHasNext());
-		System.assertEquals(Constants.DEFAULT_ROWS, extensionUnderTest.orderItemByProductIdMap.size());
+		System.assertEquals(Constants.DEFAULT_ROWS, extensionUnderTest.orderItemMap.size());
 		System.assertEquals(Constants.DEFAULT_ROWS, extensionUnderTest.orderItemList.size());
 	}
 
@@ -87,7 +87,7 @@ public class OrderExtension_StandardSetCtrlIntTests {
 		System.assertEquals(expectedPage, result);
 		System.assert(extensionUnderTest.standardSetController.getHasPrevious());
 		System.assert(!extensionUnderTest.standardSetController.getHasNext());
-		System.assertEquals(Constants.DEFAULT_ROWS, extensionUnderTest.orderItemByProductIdMap.size());
+		System.assertEquals(Constants.DEFAULT_ROWS, extensionUnderTest.orderItemMap.size());
 		Integer previousPages = expectedPage - 1;
 		Integer expectedPageItems = TEST_PRICEBOOK_ENTRY_QUANTITY - (previousPages * Constants.DEFAULT_ROWS);
 		System.assertEquals(expectedPageItems, extensionUnderTest.orderItemList.size());
@@ -115,7 +115,7 @@ public class OrderExtension_StandardSetCtrlIntTests {
 		Integer expectedFromLast = 2;
 		Integer expectedFromCurrent = Constants.DEFAULT_ROWS;
 		Integer expectedMapSize = expectedFromLast + expectedFromCurrent;
-		System.assertEquals(expectedMapSize, extensionUnderTest.orderItemByProductIdMap.size());
+		System.assertEquals(expectedMapSize, extensionUnderTest.orderItemMap.size());
 		System.assertEquals(Constants.DEFAULT_ROWS, extensionUnderTest.orderItemList.size());
 	}
 
@@ -137,7 +137,7 @@ public class OrderExtension_StandardSetCtrlIntTests {
 		System.assertEquals(2, result);
 		System.assert(extensionUnderTest.standardSetController.getHasPrevious());
 		System.assert(extensionUnderTest.standardSetController.getHasNext());
-		System.assertEquals(Constants.DEFAULT_ROWS, extensionUnderTest.orderItemByProductIdMap.size());
+		System.assertEquals(Constants.DEFAULT_ROWS, extensionUnderTest.orderItemMap.size());
 		System.assertEquals(Constants.DEFAULT_ROWS, extensionUnderTest.orderItemList.size());
 	}
 

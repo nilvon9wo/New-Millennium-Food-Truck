@@ -15,7 +15,7 @@ public class OrderExtension_populateOrderItemTests {
 	private static final List<Product2> TEST_PRODUCT_LIST = TEST_PRICEBOOK_ENTRY_BUNDLE.productList;
 	private static final Product2 TEST_PRODUCT = TEST_PRODUCT_LIST[0];
 
-	private static final ApexPages.StandardController TEST_STANDARD_CONTROLLER = new ApexPages.StandardController(TEST_ORDER);
+	private static final ApexPages.StandardController TEST_STANDARD_CONTROLLER = new ApexPages.StandardController(TEST_ORDER);  
 
 	private static final DatabaseHelperMock MOCK_DATABASE_HELPER = new DatabaseHelperMock();
 	private static final F45_DML_GenericDmlMock MOCK_GENERIC_DML = new F45_DML_GenericDmlMock();
@@ -30,7 +30,7 @@ public class OrderExtension_populateOrderItemTests {
 		MOCK_DATABASE_HELPER, 
 		MOCK_GENERIC_DML,
 		MOCK_ORDER_SELECTOR,
-		MOCK_PRICEBOOK_ENTRY_SELECTOR,	
+		MOCK_PRICEBOOK_ENTRY_SELECTOR,	  
 		MOCK_PRODUCT_HELPER, 
 		MOCK_PRODUCT_SELECTOR,
 		MOCK_VISUALFORCE_HELPER	
@@ -50,7 +50,7 @@ public class OrderExtension_populateOrderItemTests {
 		MOCK_PRICEBOOK_ENTRY_SELECTOR.returnedPricebookEntryList = TEST_PRICEBOOK_ENTRY_LIST;
 		MOCK_PRODUCT_SELECTOR.returnedProductList = TEST_PRODUCT_LIST;  
 
-		EXTENSION_UNDER_TEST.orderItemByProductIdMap = new Map<Id,OrderItem>();
+		EXTENSION_UNDER_TEST.orderItemMap = new Map<Id,OrderItem>();
 
 		// Act
 		Test.startTest();
@@ -79,7 +79,7 @@ public class OrderExtension_populateOrderItemTests {
 		MOCK_PRICEBOOK_ENTRY_SELECTOR.returnedPricebookEntryList = TEST_PRICEBOOK_ENTRY_LIST;
 		MOCK_PRODUCT_SELECTOR.returnedProductList = TEST_PRODUCT_LIST;  
 
-		EXTENSION_UNDER_TEST.orderItemByProductIdMap = new Map<Id,OrderItem>();
+		EXTENSION_UNDER_TEST.orderItemMap = new Map<Id,OrderItem>();
 
 		// Act
 		Test.startTest();
@@ -104,7 +104,7 @@ public class OrderExtension_populateOrderItemTests {
 		MOCK_PRICEBOOK_ENTRY_SELECTOR.returnedPricebookEntryList = TEST_PRICEBOOK_ENTRY_LIST;
 		MOCK_PRODUCT_SELECTOR.returnedProductList = TEST_PRODUCT_LIST;  
 
-		EXTENSION_UNDER_TEST.orderItemByProductIdMap = new Map<Id,OrderItem>{
+		EXTENSION_UNDER_TEST.orderItemMap = new Map<Id,OrderItem>{
 			TEST_PRODUCT.Id => TEST_ORDER_ITEM
 		};
 
@@ -132,7 +132,7 @@ public class OrderExtension_populateOrderItemTests {
 		MOCK_PRICEBOOK_ENTRY_SELECTOR.returnedPricebookEntryList = new List<PricebookEntry>{testPricebookEntry};
 		
 		MOCK_PRODUCT_SELECTOR.returnedProductList = TEST_PRODUCT_LIST;  
-		EXTENSION_UNDER_TEST.orderItemByProductIdMap = new Map<Id,OrderItem>();
+		EXTENSION_UNDER_TEST.orderItemMap = new Map<Id,OrderItem>();
 
 		// Act
 		Test.startTest();

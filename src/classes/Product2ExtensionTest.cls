@@ -36,13 +36,13 @@ public class Product2ExtensionTest {
 	
 	@isTest public static void testGetInventoryShouldReturnRemainingProducts() {
 		// Arrange
-		MOCK_CHART_HELPER.returnedChartDataList = new List<ChartData>();  
+		MOCK_CHART_HELPER.returnedChartDataList = new List<ChartHelper.ChartData>();  
 
 		// Act
-		List<ChartData> resultChartDataList;
+		List<ChartHelper.ChartData> resultChartDataList;
 		Test.startTest();
-		System.runAs(TEST_USER) {
-			resultChartDataList = EXTENSION_UNDER_TEST.getInventory();
+		System.runAs(TEST_USER) { 
+			resultChartDataList = EXTENSION_UNDER_TEST.getInventory(); 
 		}
 		Test.stopTest();
 		

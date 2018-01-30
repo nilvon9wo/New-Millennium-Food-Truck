@@ -13,8 +13,8 @@ public class OrderExtension {
  
     public List<OrderItem> orderItemList {get;set;}
     public Order orderRecord {get;set;}
-    public List<ChartData> pieData {get;set;} 
-    public Map<Id,OrderItem> orderItemByProductIdMap;
+    public List<ChartHelper.ChartData> pieData {get;set;} 
+    public Map<Id,OrderItem> orderItemMap;
     public Decimal total {get;set;}
     public String selectedFamily {get;set;}
  
@@ -44,7 +44,7 @@ public class OrderExtension {
     	this.visualForceHelper = visualForceHelper;
     	
     	if (standardController != null) {
-	    	this.orderItemByProductIdMap = new Map<Id,OrderItem>();
+	    	this.orderItemMap = new Map<Id,OrderItem>();
 	    	this.setOrderRecord();
 	        this.refreshPieChart(this.orderRecord.OrderItems);
 	
@@ -137,7 +137,7 @@ public class OrderExtension {
     }
 
     public Integer getTotalPages(){
-        return (Integer) Math.ceil(this.standardSetController.getResultSize() / this.standardSetController.getPageSize());
+        return (Integer) Math.ceil(this.standardSetController.getResultSize() / (Decimal)Constants.DEFAULT_ROWS);
     }
 
 	// Order Record --------------------------------------------------------------------------------------------
@@ -187,8 +187,8 @@ public class OrderExtension {
         for (PricebookEntry pricebookEntry : pricebookEntryList) {
         	Id productId = pricebookEntry.Product2Id;
         	if (productId != null) {
-	            OrderItem orderItem = this.orderItemByProductIdMap.containsKey(productId)
-	            		? orderItemByProductIdMap.get(productId).clone()	// So we can write product2Id
+	            OrderItem orderItem = this.orderItemMap.containsKey(productId)
+	            		? orderItemMap.get(productId).clone()	// So we can write product2Id
 	            		: new OrderItem(
 		                    PricebookEntry = pricebookEntry,
 		                    PricebookEntryId = pricebookEntry.Id,
@@ -208,7 +208,7 @@ public class OrderExtension {
     	for (OrderItem orderItem : this.orderItemList) {
     		Id productId = this.getOrderItemProductId(orderItem);
     		if (productId != null) {
-	    		this.orderItemByProductIdMap.put(productId, orderItem);
+	    		this.orderItemMap.put(productId, orderItem);
     		}
     	}
     }
@@ -238,7 +238,7 @@ public class OrderExtension {
 	private Map<DmlOperation, List<OrderItem>> buildOrderItemListByDmlOperationMap() {
 			List<OrderItem> orderItemToUpsertList = new List<OrderItem>();
             List<OrderItem> orderItemToDeleteList = new List<OrderItem>();
-            for (OrderItem orderItem : this.orderItemByProductIdMap.values()) {
+            for (OrderItem orderItem : this.orderItemMap.values()) {
                 if (orderItem.Quantity > 0) {
                     if (orderItem.OrderId == null) {
                         orderItem.OrderId = this.orderRecord.Id; // This probably shouldn't happen...
@@ -290,19 +290,24 @@ public class OrderExtension {
         this.populateOrderItemList();
     }
 
-    public List<SelectOption> getFamilyOptions(){
-    	return this.product2Helper.getFamilyOptions();
-    }
+    public List<SelectOption> getFamilyOptions() {		      
+     	List<SelectOption> optionList = new List<SelectOption>();		 
+     	optionList.add(new SelectOption(Constants.SELECT_ONE, Constants.SELECT_ONE));		
+     	for (Schema.PicklistEntry picklistEntry : Constants.PRODUCT_FAMILY) {		 
+     		optionList.add(new SelectOption(picklistEntry.getLabel(), picklistEntry.getValue()));		
+     	}		
+     	return optionList;		
+      }
 
     public void onFieldChange(){
         for (OrderItem orderItem : this.orderItemList) {
-            this.orderItemByProductIdMap.put(this.getOrderItemProductId(orderItem), orderItem);
+            this.orderItemMap.put(this.getOrderItemProductId(orderItem), orderItem);
         }
         this.refreshPieChart(this.orderItemList);
     }
 
 	@testVisible
-    private List<ChartData> refreshPieChart(List<OrderItem> orderItemList) {
+    private List<ChartHelper.ChartData> refreshPieChart(List<OrderItem> orderItemList) {
         this.pieData = null;
         this.total = 0;
         
@@ -313,13 +318,13 @@ public class OrderExtension {
     } 
     
 	@testVisible
-    private List<ChartData> addToPieChart(OrderItem orderItem){
-        this.orderItemByProductIdMap.put(this.getOrderItemProductId(orderItem), orderItem);
+    private List<ChartHelper.ChartData> addToPieChart(OrderItem orderItem){
+        this.orderItemMap.put(this.getOrderItemProductId(orderItem), orderItem);
         if (orderItem.Quantity > 0) {
-            if (null == this.pieData) {
-                this.pieData = new List<ChartData>();
+            if (null == this.pieData) { 
+                this.pieData = new List<ChartHelper.ChartData>();
             }
-            this.pieData.add(new ChartData(orderItem.PricebookEntry.Product2.Name, orderItem.Quantity * orderItem.UnitPrice));
+            this.pieData.add(new ChartHelper.ChartData(orderItem.PricebookEntry.Product2.Name, orderItem.Quantity * orderItem.UnitPrice));
             this.total += orderItem.UnitPrice * orderItem.Quantity;
         }
         return this.pieData; 

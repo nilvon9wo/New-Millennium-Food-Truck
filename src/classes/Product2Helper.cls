@@ -95,7 +95,7 @@ public virtual class Product2Helper {
     public List<SelectOption> getFamilyOptions() {
     	List<SelectOption> optionList = new List<SelectOption>();
     	optionList.add(new SelectOption(SELECT_ONE, SELECT_ONE));
-    	for (Schema.PicklistEntry picklistEntry : Constants.PRODUCT_FAMILY_PICKLIST) {
+    	for (Schema.PicklistEntry picklistEntry : Constants.PRODUCT_FAMILY) {
     		optionList.add(new SelectOption(picklistEntry.getLabel(), picklistEntry.getValue()));
     	}
     	return optionList;

@@ -15,18 +15,18 @@ public virtual class ProductSelector {
 			SELECT Id, Family, Name, Quantity_Remaining__c 
 			FROM Product2
 			WHERE Id IN :productIdSet
-		];
-	} 
+		]; 
+	}  
 	
-	public virtual List<ChartData> selectRemainingProductQuantityByFamily() {
-		List<ChartData> ChartDataList = new List<ChartData>(); 
+	public virtual List<ChartHelper.ChartData> selectRemainingProductQuantityByFamily() {
+		List<ChartHelper.ChartData> chartDataList = new List<ChartHelper.ChartData>(); 
 		
     	for (AggregateResult aggregateResult: this.aggregateRemainingProduct()) {
     		String family = (String) aggregateResult.get('family');
     		Integer total = Integer.valueOf(aggregateResult.get('total'));
-    		ChartDataList.add(new ChartData(family, total));
+    		chartDataList.add(new ChartHelper.ChartData(family, total));
     	}
-    	return ChartDataList;
+    	return chartDataList;
 	}
 	
 	public virtual List<AggregateResult> aggregateRemainingProduct() {
