@@ -21,7 +21,7 @@ public class PricebookEntryTestDataFactory {
             bundle.pricebookEntryList.add(new PricebookEntry(
             	Pricebook2Id = (Id) TEST_DefaultHelper.valueOrDefault(templatePricebookEntry.Pricebook2Id, DEFAULT_PRICEBOOK_ID),
             	Product2Id = (Id) TEST_DefaultHelper.valueOrDefault(templatePricebookEntry.Product2Id, null),
-            	IsActive = (Boolean) TEST_DefaultHelper.valueOrDefault(templatePricebookEntry.IsActive, DEFAULT_IS_ACTIVE),
+            	IsActive = DEFAULT_IS_ACTIVE,
             	UnitPrice = (Decimal) TEST_DefaultHelper.valueOrDefault(templatePricebookEntry.UnitPrice, DEFAULT_UNIT_PRICE)
             ));
             i++;

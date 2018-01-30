@@ -1,10 +1,14 @@
 public virtual class PricebookEntrySelector {
-    public virtual Database.QueryLocator getQueryLocator() {
+	public virtual List<PricebookEntry> getStandardSetFrom(ApexPages.StandardSetController standardSetController) {
+		return (List<PricebookEntry>) standardSetController.getRecords();
+	}
+	
+    public Database.QueryLocator getQueryLocator() {
     	String selectedFamily = null;  
 		return this.getQueryLocatorForFamily(selectedFamily); 
     } 
 
-    public virtual Database.QueryLocator getQueryLocatorForFamily(String selectedFamily) {
+    public Database.QueryLocator getQueryLocatorForFamily(String selectedFamily) {
         String query = 'SELECT Name, Product2Id, Product2.Family, Product2.Name, Product2.Quantity_Remaining__c, UnitPrice'
                      + ' FROM PricebookEntry'
                      + ' WHERE IsActive = TRUE';

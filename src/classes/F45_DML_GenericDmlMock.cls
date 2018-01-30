@@ -1,5 +1,12 @@
 @isTest  
 public class F45_DML_GenericDmlMock extends F45_DML_GenericDml {
+	public static final String EXCEPTION_MESSAGE = 'Mock Failure By Design';
+	public Boolean insertThrowsDmlException = false;
+	public Boolean updateThrowsDmlException = false;
+	public Boolean upsertThrowsDmlException = false;
+	public Boolean deleteThrowsDmlException = false;
+	public Boolean undeleteThrowsDmlException = false;
+	
 	// These need to be lists in case there are multiple DML operations during your test.
 	// Otherwise, only the last operation would be verifiable.
 	public List<List<SObject>> insertedSObjectListList = new List<List<SObject>>();
@@ -25,6 +32,10 @@ public class F45_DML_GenericDmlMock extends F45_DML_GenericDml {
     		this.insertedSObjectListList.add(objectList);
     	}
    		this.insertWasAllOrNoneList.add(isAllOrNone);
+
+    	if (insertThrowsDmlException) {
+    		throw new DmlException(EXCEPTION_MESSAGE);
+    	}
    		return (F45_DML_SaveResultListWrapper) this.getNextResultList();
     }
 
@@ -43,6 +54,10 @@ public class F45_DML_GenericDmlMock extends F45_DML_GenericDml {
     		this.updatedSObjectListList.add(objectList);
     	}
    		this.updateWasAllOrNoneList.add(isAllOrNone);
+
+    	if (updateThrowsDmlException) {
+    		throw new DmlException(EXCEPTION_MESSAGE);
+    	}
    		return (F45_DML_SaveResultListWrapper) this.getNextResultList();
     }
     
@@ -51,6 +66,10 @@ public class F45_DML_GenericDmlMock extends F45_DML_GenericDml {
     		this.upsertedSObjectListList.add(objectList);
     	}
    		this.upsertWasAllOrNoneList.add(isAllOrNone);
+
+    	if (upsertThrowsDmlException) {
+    		throw new DmlException(EXCEPTION_MESSAGE);
+    	}
    		return (F45_DML_UpsertResultListWrapper) this.getNextResultList();
     }
     
@@ -59,6 +78,10 @@ public class F45_DML_GenericDmlMock extends F45_DML_GenericDml {
     		this.deletedSObjectListList.add(objectList);
     	}
    		this.deleteWasAllOrNoneList.add(isAllOrNone);
+
+    	if (deleteThrowsDmlException) {
+    		throw new DmlException(EXCEPTION_MESSAGE);
+    	}
    		return (F45_DML_DeleteResultListWrapper) this.getNextResultList();
     }
     
@@ -67,6 +90,10 @@ public class F45_DML_GenericDmlMock extends F45_DML_GenericDml {
     		this.undeletedSObjectListList.add(objectList);
     	}
    		this.undeleteWasAllOrNoneList.add(isAllOrNone);
+
+    	if (undeleteThrowsDmlException) {
+    		throw new DmlException(EXCEPTION_MESSAGE);
+    	}
    		return (F45_DML_UndeleteResultListWrapper) this.getNextResultList();
     }
     

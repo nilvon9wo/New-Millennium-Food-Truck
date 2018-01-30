@@ -3,7 +3,6 @@
  * @description This class is provided for you to facilitate the Super Badge
 **/
 public class OrderExtension {
-	ApexPages.StandardController standardController;
     DatabaseHelper databaseHelper;
     F45_DML_GenericDml genericDml; 
     OrderSelector orderSelector;
@@ -44,14 +43,15 @@ public class OrderExtension {
     	this.standardController = standardController;
     	this.visualForceHelper = visualForceHelper;
     	
-
-    	this.orderItemByProductIdMap = new Map<Id,OrderItem>();
-    	this.setOrderRecord();
-        this.refreshPieChart(this.orderRecord.OrderItems);
-
-        this.populateOrderItemList(); 
+    	if (standardController != null) {
+	    	this.orderItemByProductIdMap = new Map<Id,OrderItem>();
+	    	this.setOrderRecord();
+	        this.refreshPieChart(this.orderRecord.OrderItems);
+	
+	        this.populateOrderItemList(); 
+    	}
     }
-    
+     
     public OrderExtension(ApexPages.StandardController standardController){
     	this(
     		standardController, 
@@ -69,6 +69,10 @@ public class OrderExtension {
     private OrderExtension(){
     	this(null);
     }
+
+	// Standard Controller -------------------------------------------------------------------------------------------------------
+
+	@testVisible private ApexPages.StandardController standardController;
     
 	// Standard Set Controller -------------------------------------------------------------------------------------------------------
 
@@ -76,7 +80,13 @@ public class OrderExtension {
     ApexPages.StandardSetController standardSetController {
     	get{
     		if (this.standardSetController == null) {
-	       		this.standardSetController = new ApexPages.StandardSetController(this.pricebookEntrySelector.getQueryLocator()); 
+    			// We need to inline this SOQL because of an SFDC limitation.  :-(
+	       		this.standardSetController = new ApexPages.StandardSetController([
+						SELECT Name, Product2Id, Product2.Family, Product2.Name, Product2.Quantity_Remaining__c, UnitPrice
+                     	FROM PricebookEntry
+                     	WHERE IsActive = TRUE
+        				ORDER BY Name	       		
+	       		]);
 	          	this.standardSetController.setPageSize(Constants.DEFAULT_ROWS);
     		}
 		    return this.standardSetController;
@@ -127,7 +137,7 @@ public class OrderExtension {
     }
 
     public Integer getTotalPages(){
-        return (Integer) Math.ceil(this.standardSetController.getResultSize() / (Decimal)Constants.DEFAULT_ROWS);
+        return (Integer) Math.ceil(this.standardSetController.getResultSize() / this.standardSetController.getPageSize());
     }
 
 	// Order Record --------------------------------------------------------------------------------------------
@@ -159,7 +169,7 @@ public class OrderExtension {
         }
         
         try {
-        	this.genericDml.doUpsert(new List<Order>{orderRecord});
+        	this.genericDml.doUpsert(new List<Order>{this.orderRecord});
         }
         catch (DmlException e) {
             return SAVE_FAILURE;
@@ -172,7 +182,7 @@ public class OrderExtension {
 	@testVisible
     private void populateOrderItemList() {
         this.orderItemList = new List<OrderItem>();
-        List<PricebookEntry> pricebookEntryList = (List<PricebookEntry>) this.standardSetController.getRecords();
+        List<PricebookEntry> pricebookEntryList = this.pricebookEntrySelector.getStandardSetFrom(this.standardSetController); 
         Map<Id, Product2> productByIdMap = new Map<Id, Product2>(this.productSelector.selectFor(pricebookEntryList));
         for (PricebookEntry pricebookEntry : pricebookEntryList) {
         	Id productId = pricebookEntry.Product2Id;
@@ -193,27 +203,6 @@ public class OrderExtension {
         }
     }
 
-	@testVisible
-	private Map<DmlOperation, List<OrderItem>> buildOrderItemListByDmlOperationMap() {
-			List<OrderItem> orderItemToUpsertList = new List<OrderItem>();
-            List<OrderItem> orderItemToDeleteList = new List<OrderItem>();
-            for (OrderItem orderItem : this.orderItemByProductIdMap.values()) {
-                if (orderItem.Quantity > 0) {
-                    if (orderItem.OrderId == null) {
-                        orderItem.OrderId = this.orderRecord.Id;
-                    }
-                    orderItemToUpsertList.add(orderItem);
-                } else if (orderItem.Id != null) {
-                    orderItemToDeleteList.add(orderItem);
-                }
-            }	
-            
-            return new Map<DmlOperation, List<OrderItem>> {
-            	DmlOperation.FOR_UPSERT => orderItemToUpsertList,
-            	DmlOperation.FOR_DELETE => orderItemToDeleteList
-            };
-	}
-	
 	@testVisible
     private void preserveValues() {
     	for (OrderItem orderItem : this.orderItemList) {
@@ -243,6 +232,27 @@ public class OrderExtension {
     		this.upsertOrderItems(orderItemListByDmlOperationMap.get(DmlOperation.FOR_UPSERT))
     		&& this.deleteOrderItems(orderItemListByDmlOperationMap.get(DmlOperation.FOR_DELETE))
     	);
+	}
+	
+	@testVisible
+	private Map<DmlOperation, List<OrderItem>> buildOrderItemListByDmlOperationMap() {
+			List<OrderItem> orderItemToUpsertList = new List<OrderItem>();
+            List<OrderItem> orderItemToDeleteList = new List<OrderItem>();
+            for (OrderItem orderItem : this.orderItemByProductIdMap.values()) {
+                if (orderItem.Quantity > 0) {
+                    if (orderItem.OrderId == null) {
+                        orderItem.OrderId = this.orderRecord.Id; // This probably shouldn't happen...
+                    }
+                    orderItemToUpsertList.add(orderItem);
+                } else if (orderItem.Id != null) {
+                    orderItemToDeleteList.add(orderItem);
+                }
+            }	
+            
+            return new Map<DmlOperation, List<OrderItem>> {
+            	DmlOperation.FOR_UPSERT => orderItemToUpsertList,
+            	DmlOperation.FOR_DELETE => orderItemToDeleteList
+            };
 	}
 	
 	@testVisible
