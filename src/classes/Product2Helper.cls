@@ -1,18 +1,10 @@
 public virtual class Product2Helper {   
-	CollaborationGroupSelector collaborationGroupSelector;
-	InventorySettingSelector inventorySettingSelector;
-	
 	private static final String SELECT_ONE = Constants.SELECT_ONE;
 	
-	public Product2Helper(CollaborationGroupSelector collaborationGroupSelector, InventorySettingSelector inventorySettingSelector) {
-		this.collaborationGroupSelector = collaborationGroupSelector;
-		this.inventorySettingSelector = inventorySettingSelector;
-	} 
- 
 	public Product2Helper() {
-		this(new CollaborationGroupSelector(), new InventorySettingSelector());
 	}
 
+	@testVisible
 	private CollaborationGroup COLLABORATION_GROUP {
 		get {
 			if (this.COLLABORATION_GROUP == null) {
@@ -23,8 +15,9 @@ public virtual class Product2Helper {
 		private set;
 	}
 
+	@testVisible
     public virtual CollaborationGroup selectInventoryAnnouncementCollaborationGroup() { 
-    	return this.collaborationGroupSelector.selectByName(Constants.INVENTORY_ANNOUNCEMENTS); 
+    	return this.selectByName(Constants.INVENTORY_ANNOUNCEMENTS); 
     } 
 
     public static void afterUpdate(List<Product2> oldList, List<Product2> newList){
@@ -37,7 +30,7 @@ public virtual class Product2Helper {
     
 	@testVisible List<Product2> createProductAnnouncementList(List<Product2> newProductList) {
 		Map<String, Decimal> inventoryLowQualityAlertByProductNameMap = new Map<String, Decimal>();
-        for (Inventory_Setting__mdt inventorySetting : this.inventorySettingSelector.selectAll()) {
+        for (Inventory_Setting__mdt inventorySetting : this.selectAllInventorySettings()) {
             inventoryLowQualityAlertByProductNameMap.put(inventorySetting.DeveloperName, inventorySetting.Low_Quantity_Alert__c);
         }
         
@@ -100,4 +93,23 @@ public virtual class Product2Helper {
     	}
     	return optionList;
     }
+    
+    @testVisible
+    private virtual CollaborationGroup selectByName(String name){
+    	return [
+	        SELECT Id
+	        FROM CollaborationGroup
+	        WHERE Name = :name
+	        LIMIT 1
+	    ];
+    }     
+    
+    @testVisible
+    private virtual List<Inventory_Setting__mdt> selectAllInventorySettings() {
+    	return [
+    		SELECT Id, DeveloperName, Low_Quantity_Alert__c  
+    		FROM Inventory_Setting__mdt
+    	];
+    } 
+    
 }

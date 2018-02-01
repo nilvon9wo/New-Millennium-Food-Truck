@@ -3,345 +3,247 @@
  * @description This class is provided for you to facilitate the Super Badge
 **/
 public class OrderExtension {
-    DatabaseHelper databaseHelper;
-    F45_DML_GenericDml genericDml; 
-    OrderSelector orderSelector;
-    PricebookEntrySelector pricebookEntrySelector;
-    Product2Helper product2Helper;
-    ProductSelector productSelector;
-    VisualForceHelper visualForceHelper;
- 
-    public List<OrderItem> orderItemList {get;set;}
+
     public Order orderRecord {get;set;}
-    public List<ChartHelper.ChartData> pieData {get;set;} 
-    public Map<Id,OrderItem> orderItemMap;
-    public Decimal total {get;set;}
+    public List<OrderItem> orderItemList {get;set;}
     public String selectedFamily {get;set;}
- 
-    private static final Boolean SAVE_SUCCESS = true; 
-    private static final Boolean SAVE_FAILURE = false; 
+    public List<chartHelper.chartData> pieData {get;set;}
+    public Decimal total {get;set;}
 
-	@testVisible
-    private enum DmlOperation { FOR_UPSERT, FOR_DELETE }
+    public Map<Id,OrderItem> orderItemMap;
+    ApexPages.StandardSetController standardSetController;
 
-	public OrderExtension(
-    		ApexPages.StandardController standardController,
-    		DatabaseHelper databaseHelper, 
-    		F45_DML_GenericDml genericDml,
-    		OrderSelector orderSelector, 
-    		PricebookEntrySelector pricebookEntrySelector,
-    		Product2Helper product2Helper,
-    		ProductSelector productSelector,
-    		VisualForceHelper visualForceHelper
-    	){
-    	this.databaseHelper = databaseHelper;
-    	this.genericDml = genericDml;
-    	this.orderSelector = orderSelector;
-    	this.pricebookEntrySelector = pricebookEntrySelector;
-    	this.product2Helper = product2Helper;
-    	this.productSelector = productSelector;
-    	this.standardController = standardController;
-    	this.visualForceHelper = visualForceHelper;
-    	
-    	if (standardController != null) {
-	    	this.orderItemMap = new Map<Id,OrderItem>();
-	    	this.setOrderRecord();
-	        this.refreshPieChart(this.orderRecord.OrderItems);
-	
-	        this.populateOrderItemList(); 
-    	}
-    }
-     
     public OrderExtension(ApexPages.StandardController standardController){
-    	this(
-    		standardController, 
-    		new DatabaseHelper(), 
-    		new F45_DML_GenericDml(), 
-    		new OrderSelector(),
-    		new PricebookEntrySelector(), 
-    		new Product2Helper(), 
-    		new ProductSelector(),
-    		new VisualForceHelper()
-    	);
-    }
-
-	@testVisible
-    private OrderExtension(){
-    	this(null);
-    }
-
-	// Standard Controller -------------------------------------------------------------------------------------------------------
-
-	@testVisible private ApexPages.StandardController standardController;
-    
-	// Standard Set Controller -------------------------------------------------------------------------------------------------------
-
-	@testVisible
-    ApexPages.StandardSetController standardSetController {
-    	get{
-    		if (this.standardSetController == null) {
-    			// We need to inline this SOQL because of an SFDC limitation.  :-(
-	       		this.standardSetController = new ApexPages.StandardSetController([
-						SELECT Name, Product2Id, Product2.Family, Product2.Name, Product2.Quantity_Remaining__c, UnitPrice
-                     	FROM PricebookEntry
-                     	WHERE IsActive = TRUE
-        				ORDER BY Name	       		
-	       		]);
-	          	this.standardSetController.setPageSize(Constants.DEFAULT_ROWS);
-    		}
-		    return this.standardSetController;
-    	}
-    	private set;
-    }
-    
-	@testVisible
-    private void resetStandardSetController() {
-        this.standardSetController = new ApexPages.StandardSetController(this.pricebookEntrySelector.getQueryLocatorForFamily(this.selectedFamily));
-        this.standardSetController.setPageSize(Constants.DEFAULT_ROWS);
-    }
-
-    public void first(){
-    	this.preserveValues();
-        this.standardSetController.first();
-        this.populateOrderItemList();
-    }
-
-    public void previous(){
-    	this.preserveValues();
-        this.standardSetController.previous();
-        this.populateOrderItemList();
-    }
-
-    public Boolean getHasPrevious(){
-        return this.standardSetController.getHasPrevious();
-    }
-
-    public void next(){
-    	this.preserveValues();
-        this.standardSetController.next();
-        this.populateOrderItemList();
-    }
-
-    public Boolean getHasNext(){
-        return this.standardSetController.getHasNext();
-    }
-
-    public void last(){
-    	this.preserveValues();
-        this.standardSetController.last();
-        this.populateOrderItemList();
-    }
-
-    public Integer getPageNumber(){
-        return this.standardSetController.getPageNumber();
-    }
-
-    public Integer getTotalPages(){
-        return (Integer) Math.ceil(this.standardSetController.getResultSize() / (Decimal)Constants.DEFAULT_ROWS);
-    }
-
-	// Order Record --------------------------------------------------------------------------------------------
-
-   	@testVisible
-    private Order setOrderRecord() { 
-		if (this.standardController != null) {
-	        this.orderRecord = (Order) this.standardController.getRecord(); 
-	        if ( this.orderRecord.Id != null ){
-	            this.orderRecord = this.selectOrderRecord(orderRecord.Id);
-	        }
+        orderRecord = (Order)standardController.getRecord();
+        orderItemMap = new Map<id,OrderItem>();
+        if ( orderRecord.Id != null ){
+            orderRecord = queryOrderRecord(orderRecord.Id);
         }
-        return this.orderRecord;    		
-    }
 
-    public static Order queryOrderRecord(Id orderId){
-    	return (new OrderExtension()).selectOrderRecord(orderId);
-    }
+        resetSsc();
+        total = 0;
 
-	@testVisible
-    private Order selectOrderRecord(Id orderId){ 
-    	return this.orderSelector.selectById(new Set<Id>{orderId})[0];
-    }
-
-	@testVisible
-	private Boolean saveOrderRecord() {
-        if (this.orderRecord.Pricebook2Id == null) {
-            this.orderRecord.Pricebook2Id = Constants.STANDARD_PRICEBOOK_ID;
-        }
-        
-        try {
-        	this.genericDml.doUpsert(new List<Order>{this.orderRecord});
-        }
-        catch (DmlException e) {
-            return SAVE_FAILURE;
-        }
-       	return SAVE_SUCCESS;
-	} 
-
-	// Order Items --------------------------------------------------------------------------------------------
-
-	@testVisible
-    private void populateOrderItemList() {
-        this.orderItemList = new List<OrderItem>();
-        List<PricebookEntry> pricebookEntryList = this.pricebookEntrySelector.getStandardSetFrom(this.standardSetController); 
-        Map<Id, Product2> productByIdMap = new Map<Id, Product2>(this.productSelector.selectFor(pricebookEntryList));
-        for (PricebookEntry pricebookEntry : pricebookEntryList) {
-        	Id productId = pricebookEntry.Product2Id;
-        	if (productId != null) {
-	            OrderItem orderItem = this.orderItemMap.containsKey(productId)
-	            		? orderItemMap.get(productId).clone()	// So we can write product2Id
-	            		: new OrderItem(
-		                    PricebookEntry = pricebookEntry,
-		                    PricebookEntryId = pricebookEntry.Id,
-		                    Product2Id = productId, 
-		                    Quantity = 0,
-		                    UnitPrice = pricebookEntry.UnitPrice
-		                );
-		        orderItem.Product2 = productByIdMap.get(productId);
-		        orderItem.Product2Id = this.getOrderItemProductId(orderItem);
-	            this.orderItemList.add(orderItem);
-        	}
-        }
-    }
-
-	@testVisible
-    private void preserveValues() {
-    	for (OrderItem orderItem : this.orderItemList) {
-    		Id productId = this.getOrderItemProductId(orderItem);
-    		if (productId != null) {
-	    		this.orderItemMap.put(productId, orderItem);
-    		}
-    	}
-    }
-	
-    public void save(){
-        System.Savepoint savepoint = this.databaseHelper.setSavepoint();
-        
-        if (
-        	!this.saveOrderRecord()
-    		|| !this.saveOrderItems()
-    	) {
-       		this.onDmlFailure(savepoint);
-        }
-    }
-	
-	@testVisible
-	private Boolean saveOrderItems() {
-    	Map<DmlOperation, List<OrderItem>> orderItemListByDmlOperationMap = this.buildOrderItemListByDmlOperationMap();
-    	
-    	return (
-    		this.upsertOrderItems(orderItemListByDmlOperationMap.get(DmlOperation.FOR_UPSERT))
-    		&& this.deleteOrderItems(orderItemListByDmlOperationMap.get(DmlOperation.FOR_DELETE))
-    	);
-	}
-	
-	@testVisible
-	private Map<DmlOperation, List<OrderItem>> buildOrderItemListByDmlOperationMap() {
-			List<OrderItem> orderItemToUpsertList = new List<OrderItem>();
-            List<OrderItem> orderItemToDeleteList = new List<OrderItem>();
-            for (OrderItem orderItem : this.orderItemMap.values()) {
-                if (orderItem.Quantity > 0) {
-                    if (orderItem.OrderId == null) {
-                        orderItem.OrderId = this.orderRecord.Id; // This probably shouldn't happen...
-                    }
-                    orderItemToUpsertList.add(orderItem);
-                } else if (orderItem.Id != null) {
-                    orderItemToDeleteList.add(orderItem);
+        for (OrderItem oi : orderRecord.OrderItems) {
+            orderItemMap.put(oi.Product2Id, oi);
+            if (oi.Quantity > 0) {
+                if (null == pieData) {
+                    pieData = new List<ChartHelper.ChartData>();
                 }
-            }	
-            
-            return new Map<DmlOperation, List<OrderItem>> {
-            	DmlOperation.FOR_UPSERT => orderItemToUpsertList,
-            	DmlOperation.FOR_DELETE => orderItemToDeleteList
-            };
-	}
-	
-	@testVisible
-	private Boolean upsertOrderItems(List<OrderItem> orderItemList) {
-        try {
-	    	this.genericDml.doUpsert(orderItemList);
-	    }
-	    catch (DmlException e) {
-            return SAVE_FAILURE;
-        }
-       	return SAVE_SUCCESS;
-	}
-
-	@testVisible
-	private Boolean deleteOrderItems(List<OrderItem> orderItemList) {
-        try {
-	    	this.genericDml.doDelete(orderItemList);
-	    }
-	    catch (DmlException e) {
-            return SAVE_FAILURE;
-        }
-       	return SAVE_SUCCESS;
-	}
-	
-	@testVisible
-	private void onDmlFailure(System.Savepoint savepoint) {
-		this.databaseHelper.rollback(savepoint);
-        this.visualForceHelper.addInfoMessage(Constants.ERROR_MESSAGE);
-	}
-	
-	// Product -----------------------------------------------------------------------------------------------------------------------
-
-    public void selectFamily(){
-        this.resetStandardSetController();
-        this.populateOrderItemList();
-    }
-
-    public List<SelectOption> getFamilyOptions() {		      
-     	List<SelectOption> optionList = new List<SelectOption>();		 
-     	optionList.add(new SelectOption(Constants.SELECT_ONE, Constants.SELECT_ONE));		
-     	for (Schema.PicklistEntry picklistEntry : Constants.PRODUCT_FAMILY) {		 
-     		optionList.add(new SelectOption(picklistEntry.getLabel(), picklistEntry.getValue()));		
-     	}		
-     	return optionList;		
-      }
-
-    public void onFieldChange(){
-        for (OrderItem orderItem : this.orderItemList) {
-            this.orderItemMap.put(this.getOrderItemProductId(orderItem), orderItem);
-        }
-        this.refreshPieChart(this.orderItemList);
-    }
-
-	@testVisible
-    private List<ChartHelper.ChartData> refreshPieChart(List<OrderItem> orderItemList) {
-        this.pieData = null;
-        this.total = 0;
-        
-        for (OrderItem orderItem : orderItemList) {
-        	this.addToPieChart(orderItem);
-        }
-        return this.pieData;
-    } 
-    
-	@testVisible
-    private List<ChartHelper.ChartData> addToPieChart(OrderItem orderItem){
-        this.orderItemMap.put(this.getOrderItemProductId(orderItem), orderItem);
-        if (orderItem.Quantity > 0) {
-            if (null == this.pieData) { 
-                this.pieData = new List<ChartHelper.ChartData>();
+                pieData.add(new chartHelper.ChartData(oi.Product2.Name, oi.Quantity * oi.UnitPrice));
+                total += oi.UnitPrice * oi.Quantity;
             }
-            this.pieData.add(new ChartHelper.ChartData(orderItem.PricebookEntry.Product2.Name, orderItem.Quantity * orderItem.UnitPrice));
-            this.total += orderItem.UnitPrice * orderItem.Quantity;
         }
-        return this.pieData; 
+        PopulateOrderItems();
     }
 
-	@testVisible
-    private Id getOrderItemProductId (OrderItem orderItem) {
-    	Id productId;
-    	try {
-    		productId = orderItem.Product2Id;
-    	}
-    	catch (SObjectException ex) {
-    		// Because SFDC has internal inconsistencies with regard to the relationship between Pricebooks and Products.
-    	}
-    	
-		return (productId != null)
-			? productId
-			: (orderItem.Pricebookentry != null) ? orderItem.Pricebookentry.Product2Id : null;    	
+    void resetSsc() {
+        String query = 'SELECT Name, Product2.Family, Product2.Name, Product2Id, UnitPrice, Product2.Quantity_Remaining__c'
+                     + '  FROM PricebookEntry WHERE IsActive = TRUE';
+
+        if (selectedFamily != null && selectedFamily != Constants.SELECT_ONE) {
+            query += ' AND Product2.Family = \'' + selectedFamily + '\'';
+        }
+        query += ' ORDER BY Name';
+
+        standardSetController = new ApexPages.StandardSetController(Database.getQueryLocator(query));
+        standardSetController.setPageSize(Constants.DEFAULT_ROWS);
     }
+
+    //ToDo: Implement your own method to populate orderItemList
+    //  that you will call after pagination and/or family selection
+    void PopulateOrderItems() {
+        orderItemList = new List<OrderItem>();
+        for (SObject obj : standardSetController.getRecords()) {
+            PricebookEntry pbe = (PricebookEntry)obj;
+
+            if (orderItemMap.containsKey(pbe.Product2Id)) {
+                orderItemList.add(orderItemMap.get(pbe.Product2Id));
+            } else {
+                orderItemList.add(new OrderItem(
+                    PricebookEntryId=pbe.Id,
+                    Product2Id=pbe.Product2Id,
+                    UnitPrice=pbe.UnitPrice,
+                    Quantity=0,
+                    Product2=pbe.Product2
+                ));
+            }
+        }
+    }
+
+
+    /**
+     * @name OnFieldChange
+     * @description
+    **/
+    public void OnFieldChange(){
+        //ToDo: Implement logic to store the values changed on the page
+        for (OrderItem oi : orderItemList) {
+            orderItemMap.put(oi.Product2Id, oi);
+        }
+
+        //      and populate pieData
+        pieData = null;
+        total = 0;
+        for (OrderItem oi : orderItemMap.values()) {
+            if (oi.Quantity > 0) {
+                if (null == pieData) {
+                    pieData = new List<chartHelper.ChartData>();
+                }
+                pieData.add(new chartHelper.ChartData(oi.Product2.Name, oi.Quantity * oi.UnitPrice));
+                //      and populate total
+                total += oi.UnitPrice * oi.Quantity;
+            }
+
+        }
+
+    }
+
+    /**
+     * @name SelectFamily
+     * @description
+    **/
+    public void SelectFamily(){
+        //ToDo: Implement logic to filter based on the selected product family
+        resetSsc();
+        PopulateOrderItems();
+    }
+
+    /**
+     * @name Save
+     * @description
+    **/
+    public void Save(){
+        //ToDo: Implement logic to save the Order and populated OrderItems
+        System.Savepoint sp = Database.setSavepoint();
+        try {
+            if (null == orderRecord.Pricebook2Id) {
+                orderRecord.Pricebook2Id = Constants.STANDARD_PRICEBOOK_ID;
+            }
+            upsert orderRecord;
+
+            List<OrderItem> orderItemsToUpsert = new List<OrderItem>();
+            List<OrderItem> orderItemsToDelete = new List<OrderItem>();
+            for (OrderItem oi : orderItemList) {
+            //for (OrderItem oi : orderItemMap.values()) {
+                if (oi.Quantity > 0) {
+                    if (null == oi.OrderId) {
+                        oi.OrderId = orderRecord.Id;
+                    }
+                    orderItemsToUpsert.add(oi);
+                } else if (oi.Id != null) {
+                    orderItemsToDelete.add(oi);
+                }
+            }
+
+            upsert orderItemsToUpsert;
+            delete orderItemsToDelete;
+        } catch (Exception e) {
+            Database.rollback(sp);
+            apexPages.addMessage(new ApexPages.message(ApexPages.Severity.INFO,Constants.ERROR_MESSAGE));
+        }
+    }
+
+
+    /**
+     * @name First
+     * @description
+    **/
+    public void First(){
+        standardSetController.first();
+        PopulateOrderItems();
+    }
+
+
+    /**
+     * @name Next
+     * @description
+    **/
+    public void Next(){
+        standardSetController.next();
+        PopulateOrderItems();
+    }
+
+
+    /**
+     * @name Previous
+     * @description
+    **/
+    public void Previous(){
+        standardSetController.previous();
+        PopulateOrderItems();
+    }
+
+    /**
+     * @name Last
+     * @description
+    **/
+    public void Last(){
+        standardSetController.last();
+        PopulateOrderItems();
+    }
+
+    /**
+     * @name GetHasPrevious
+     * @description
+    **/
+    public Boolean GetHasPrevious(){
+        return standardSetController.getHasPrevious();
+    }
+
+    /**
+     * @name GetHasNext
+     * @description
+    **/
+    public Boolean GetHasNext(){
+        return standardSetController.getHasNext();
+    }
+
+    /**
+     * @name GetTotalPages
+     * @description
+    **/
+    public Integer GetTotalPages(){
+        return (Integer)Math.ceil(standardSetController.getResultSize() / (Decimal)Constants.DEFAULT_ROWS);
+    }
+
+    /**
+     * @name GetPageNumber
+     * @description
+    **/
+    public Integer GetPageNumber(){
+        return standardSetController.getPageNumber();
+    }
+
+    /**
+     * @name GetFamilyOptions
+     * @description
+    **/
+    public List<SelectOption> GetFamilyOptions() {
+        List<SelectOption> options = new List<SelectOption>{
+            new SelectOption(Constants.SELECT_ONE, Constants.SELECT_ONE)
+        };
+
+        for (Schema.PicklistEntry ple : Constants.PRODUCT_FAMILY) {
+            options.add(new SelectOption(ple.getValue(), ple.getLabel()));
+        }
+        return options;
+    }
+
+    /**
+     * @name QueryOrderRecord
+     * @description
+    **/
+    public static Order QueryOrderRecord(Id orderId){
+        return [
+            SELECT Id, AccountId, EffectiveDate, Name, Status, Pricebook2Id,
+                (
+                    SELECT Id, OrderId, Quantity, UnitPrice, PricebookEntryId, Product2Id,
+                         Product2.Name, Product2.Family, Product2.Quantity_Remaining__c
+                    FROM OrderItems
+                )
+            FROM Order
+            WHERE Id = :orderId
+        ];
+    }
+
 }

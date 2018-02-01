@@ -1,30 +1,22 @@
-public without sharing virtual class ChartHelper {
-	ProductSelector productSelector;
-	 
-	public ChartHelper(ProductSelector productSelector) {
-		this.productSelector = productSelector;
-	}
- 
-	public ChartHelper() { 
-		this(new ProductSelector());
-	}
- 
-	@AuraEnabled
-    public static List<ChartHelper.ChartData> getInventory(){
-    	return (new ChartHelper()).selectRemainingProductList(); 
+public without sharing class ChartHelper {
+    
+    @AuraEnabled// Make sure annotation should be applied for this method 
+    public static List<chartData> GetInventory(){
+        List<chartData> cht = new List<chartData>();
+        for(AggregateResult ar : [SELECT Family family, Sum(Quantity_Remaining__c) total 
+                                  FROM Product2
+                                  WHERE Quantity_Remaining__c > 0 GROUP BY Family]){
+                                      cht.add(new chartData((String)ar.get('family'), Integer.valueOf(ar.get('total'))));
+                                  }
+        return cht;
     }
     
-    public virtual List<ChartHelper.ChartData> selectRemainingProductList() {
-    	return this.productSelector.selectRemainingProductQuantityByFamily();
-    }
-     
     public class ChartData {
-		public String name {get;set;}
-	    public Decimal value {get;set;}
-	
-	    public ChartData(String name, Decimal value) {
-	    	this.name = name;
-	        this.value = value;
-	   	}
-    }   
+        public String name {get;set;}
+        public Decimal val {get;set;}
+        public ChartData(String name, Decimal val){
+            this.name = name;
+            this.val = val;
+        }
+    }
 }

@@ -1,0 +1,13 @@
+NAME,ISACTIVE,FAMILY,INITIAL_INVENTORY__C,QUANTITY_ORDERED__C,QUANTITY_REMAINING__C
+Onion Rings,TRUE,Side,20,999,-979
+Carrot Cake,TRUE,Dessert,15,32423835,-32423820
+Lemonade,TRUE,Beverage,10,3235,-3225
+Hamburger,TRUE,Entree,25,0,25
+Chocolate Cake,TRUE,Dessert,15,2165,-2150
+French Fries,TRUE,Side,20,34,-14
+Iced Tea,TRUE,Beverage,10,52,-42
+Coconut Water,TRUE,Beverage,10,4338,-4328
+Jello,TRUE,Dessert,15,0,15
+Garlic Bread,TRUE,Side,20,34,-14
+Pizza,TRUE,Entree,25,0,25
+Hot Dog,TRUE,Entree,25,0,25
